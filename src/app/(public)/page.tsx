@@ -19,7 +19,6 @@ import { listPublishedEpisodeSummaries, findLatestPublishedEpisode } from '@/rep
 import { CHARACTERS } from '@/features/characters/characters.data';
 import CharacterAvatar from '@/components/story/CharacterAvatar';
 import ContinueReadingRail from '@/components/home/ContinueReadingRail';
-import NewsletterSignup from '@/components/home/NewsletterSignup';
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -264,9 +263,6 @@ export default async function HomePage() {
             someone who was recently exactly as confused as the reader.
           </Typography>
         </Box>
-
-        {/* 9. Newsletter placeholder */}
-        <NewsletterSignup />
       </Container>
     </>
   );
