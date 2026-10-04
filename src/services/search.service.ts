@@ -79,11 +79,11 @@ export async function searchSite(
   const seriesSlugById = new Map(parentSeries.map((s) => [s._id.toHexString(), s.slug]));
 
   const moduleItems: SearchResult[] = moduleMatches
-    .map((m) => {
+    .map((m): SearchResult | null => {
       const seriesSlug = seriesSlugById.get(m.seriesId);
       if (!seriesSlug) return null;
       return {
-        kind: 'module' as const,
+        kind: 'module',
         title: m.title,
         description: m.description,
         href: `/series/${seriesSlug}/module/${m.slug}`,
