@@ -6,6 +6,12 @@ import { listTags } from '@/repositories/tags.repository';
 
 const APP_URL = process.env.APP_URL ?? 'http://localhost:3000';
 
+// Generated on first request (and revalidated hourly) rather than at build
+// time, so a transient DB/network hiccup during `next build` can't fail the
+// whole deployment — consistent with the revalidate window used by /series
+// and /topics, the other listing pages built from the same repositories.
+export const revalidate = 3600;
+
 /**
  * Dynamic sitemap covering every publicly indexable URL. Draft and
  * scheduled content is structurally excluded because it comes from the
