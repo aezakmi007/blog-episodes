@@ -1,0 +1,114 @@
+/* ---------------------------------------------------------------------- */
+/* Global, non-MUI styles: texture, motion rules, print styles, selection. */
+/* Colors here are intentionally referenced through MUI's generated CSS    */
+/* custom properties (--ssml-palette-*) rather than raw hex, so light and  */
+/* dark mode stay in sync automatically. See src/theme/theme.ts.          */
+/* ---------------------------------------------------------------------- */
+
+:root {
+  --measure-reading: 68ch; /* target line length for long-form text */
+  --grain-opacity: 0.035;
+  --header-height: 72px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Subtle paper/grain texture over the whole canvas — a warm, tactile
+   "Sunday morning" surface rather than a flat gradient. Decorative only,
+   so it is applied via ::before on a fixed layer and marked inert for
+   assistive tech, never conveying information on its own. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+@media (prefers-color-scheme: dark) {
+  body::before {
+    mix-blend-mode: overlay;
+  }
+}
+
+#app-shell {
+  position: relative;
+  z-index: 1;
+}
+
+/* Skip-to-content link: visually hidden until focused, per WCAG 2.2. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 1000;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: var(--ssml-palette-primary-main, #172554);
+  color: var(--ssml-palette-primary-contrastText, #fff);
+  text-decoration: none;
+  font-weight: 600;
+  transition: top 0.15s ease-out;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Comfortable long-form measure, used by the episode reader and article
+   bodies. Centralized here so every reading surface stays consistent. */
+.reading-measure {
+  max-width: var(--measure-reading);
+  margin-inline: auto;
+}
+
+::selection {
+  background: var(--ssml-palette-warning-main, #f59e0b);
+  color: var(--ssml-palette-navy-900, #0b1220);
+}
+
+/* Respect the visitor's OS-level motion preference globally. Individual
+   components still provide reduced-motion variants for anything meaningful
+   (see Framer Motion usages in Phase 5+), but this is the last-resort net:
+   nothing animates longer or more than a instantaneous state change when
+   reduced motion is requested. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  body::before,
+  .skip-link,
+  [data-hide-on-print='true'] {
+    display: none !important;
+  }
+
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: #555;
+  }
+}
