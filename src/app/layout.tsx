@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Fraunces, Source_Sans_3 } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import ThemeRegistry from '@/theme/ThemeRegistry';
 import './globals.css';
 
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeRegistry>
           <div id="app-shell">{children}</div>
         </ThemeRegistry>
+        <Analytics />
       </body>
     </html>
   );
