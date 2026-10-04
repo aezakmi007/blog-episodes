@@ -74,25 +74,6 @@ export default function Footer() {
               </Stack>
             </Grid>
           ))}
-
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1.5, opacity: 0.9 }}>
-              Follow along
-            </Typography>
-            <Stack direction="row" spacing={2} component="nav" aria-label="Social">
-              {['YouTube', 'Instagram', 'X'].map((platform) => (
-                <Typography
-                  key={platform}
-                  component="a"
-                  href="#"
-                  variant="body2"
-                  sx={{ color: 'inherit', textDecoration: 'underline', opacity: 0.85 }}
-                >
-                  {platform}
-                </Typography>
-              ))}
-            </Stack>
-          </Grid>
         </Grid>
 
         <Divider sx={{ my: 4, borderColor: 'rgba(255,255,255,0.2)' }} />

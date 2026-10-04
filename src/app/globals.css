@@ -52,23 +52,14 @@ body::before {
   z-index: 1;
 }
 
-/* Skip-to-content link: visually hidden until focused, per WCAG 2.2. */
-.skip-link {
+/* Decorative corner mark: purely visual brand touch, not interactive. */
+.corner-mark {
   position: absolute;
   left: 1rem;
-  top: -3rem;
-  z-index: 1000;
-  padding: 0.75rem 1.25rem;
-  border-radius: 999px;
-  background: var(--ssml-palette-primary-main, #172554);
-  color: var(--ssml-palette-primary-contrastText, #fff);
-  text-decoration: none;
-  font-weight: 600;
-  transition: top 0.15s ease-out;
-}
-
-.skip-link:focus {
   top: 1rem;
+  z-index: 1400;
+  line-height: 0;
+  pointer-events: none;
 }
 
 /* Comfortable long-form measure, used by the episode reader and article
@@ -101,7 +92,7 @@ body::before {
 
 @media print {
   body::before,
-  .skip-link,
+  .corner-mark,
   [data-hide-on-print='true'] {
     display: none !important;
   }

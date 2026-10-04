@@ -55,9 +55,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`} suppressHydrationWarning>
       <body>
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
+        <div className="corner-mark" aria-hidden="true">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="18" fill="#172554" />
+            <path
+              d="M11 14.5c0-1.38 1.12-2.5 2.5-2.5h7c1.38 0 2.5 1.12 2.5 2.5v3.75c0 1.38-1.12 2.5-2.5 2.5h-5.1l-2.9 2.4v-2.4h-1c-1.38 0-2.5-1.12-2.5-2.5V14.5Z"
+              fill="#F59E0B"
+            />
+            <path
+              d="M25 17.25c0-.97-.78-1.75-1.75-1.75h-.5v3.35c0 1.93-1.57 3.5-3.5 3.5h-2.78c.32.72 1.04 1.25 1.9 1.25h3.57l2.06 1.7v-1.7h.5c.97 0 1.75-.78 1.75-1.75v-4.6Z"
+              fill="#5EEAD4"
+            />
+          </svg>
+        </div>
         <ThemeRegistry>
           <div id="app-shell">{children}</div>
         </ThemeRegistry>
