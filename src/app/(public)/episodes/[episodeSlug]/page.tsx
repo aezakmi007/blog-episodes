@@ -16,6 +16,7 @@ import ReadingProgress from '@/components/episode/ReadingProgress';
 import TableOfContents from '@/components/episode/TableOfContents';
 import { buildTocEntries } from '@/components/episode/toc';
 import ContentBlockRenderer from '@/components/episode/ContentBlockRenderer';
+import EpisodeAudioPlayer from '@/components/episode/EpisodeAudioPlayer';
 import EpisodeAdjacentNav from '@/components/episode/EpisodeAdjacentNav';
 import { buildArticleSchema, buildBreadcrumbSchema } from '@/lib/seo/structured-data';
 
@@ -151,6 +152,12 @@ export default async function EpisodePage({
             <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
               <TableOfContents entries={tocEntries} />
             </Box>
+
+            {episode.audio && (
+              <Box className="reading-measure" sx={{ maxWidth: { xs: '100%', md: 'var(--measure-reading)' } }}>
+                <EpisodeAudioPlayer audio={episode.audio} />
+              </Box>
+            )}
 
             <Box className="reading-measure" sx={{ maxWidth: { xs: '100%', md: 'var(--measure-reading)' } }}>
               {publicBlocks.map((block) => (

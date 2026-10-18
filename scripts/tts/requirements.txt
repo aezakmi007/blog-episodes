@@ -1,0 +1,23 @@
+# Run on your own machine (with internet + ideally a GPU) — this sandbox
+# cannot reach pypi.org or huggingface.co, so these packages and model
+# weights have to be downloaded from a normal internet connection.
+#
+#   python3 -m venv .venv && source .venv/bin/activate
+#   pip install -r scripts/tts/requirements.txt
+#
+git+https://github.com/huggingface/parler-tts.git
+transformers>=4.46.1
+# Pinned below 1.0: the transformers version parler-tts pulls in requires
+# huggingface-hub<1.0, but `pip install --upgrade huggingface_hub` (e.g. to
+# get a newer `hf auth login`) installs the newest release regardless,
+# which breaks transformers' import check. Keep this pin so one
+# `pip install -r requirements.txt` always lands on a compatible pair —
+# your cached login token is unaffected by the package version.
+huggingface_hub<1.0,>=0.23.2
+torch
+soundfile
+pydub
+# Romanized-Hindi -> Devanagari transliteration, so the TTS model sees
+# text in the script it was actually trained to pronounce as Hindi
+# (see generate_episode_audio.py's module docstring for why this matters).
+ai4bharat-transliteration

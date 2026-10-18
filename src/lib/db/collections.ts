@@ -15,4 +15,9 @@ export const COLLECTIONS = {
   PAGE_VIEWS: 'pageViews',
 } as const;
 
+/** GridFS bucket name for episode audio files — backed by two real
+ * collections, `episodeAudio.files` and `episodeAudio.chunks`, that the
+ * MongoDB driver manages itself (see repositories/audio.repository.ts). */
+export const AUDIO_BUCKET_NAME = 'episodeAudio';
+
 export type CollectionName = (typeof COLLECTIONS)[keyof typeof COLLECTIONS];

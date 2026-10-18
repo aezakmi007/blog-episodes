@@ -6,6 +6,7 @@ import { ensureAdminIndexes } from '@/repositories/admins.repository';
 import { ensureMediaIndexes } from '@/repositories/media.repository';
 import { ensureAuditLogIndexes } from '@/repositories/audit-logs.repository';
 import { ensureTagIndexes } from '@/repositories/tags.repository';
+import { ensureAudioIndexes } from '@/repositories/audio.repository';
 
 /**
  * Creates every index the application relies on. `createIndex` is
@@ -21,6 +22,7 @@ export async function ensureAllIndexes(): Promise<void> {
     ensureMediaIndexes(),
     ensureAuditLogIndexes(),
     ensureTagIndexes(),
+    ensureAudioIndexes(),
   ]);
 }
 

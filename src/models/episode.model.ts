@@ -10,6 +10,31 @@ import { contentBlocksSchema } from './content-block.model';
 const characterIdSchema = z.enum(['shyam', 'salim']);
 
 /**
+ * Optional full-episode audio drama — a separate listening track from the
+ * text reader, not a mid-episode content block. `url` is left optional
+ * because producing the actual audio (recording, or TTS via a tool like
+ * ElevenLabs) happens outside this app; admins can publish the episode
+ * with just a `script` first (readable in the player's transcript panel)
+ * and paste in `url` once the audio file exists in object storage.
+ */
+export const voiceCastEntrySchema = z.object({
+  character: z.enum(['shyam', 'salim', 'narrator']),
+  voiceDirection: z.string().min(1).max(400),
+});
+
+export const episodeAudioSchema = z.object({
+  url: z.string().optional(),
+  durationLabel: z.string().max(40).optional(),
+  voiceCast: z.array(voiceCastEntrySchema).default([]),
+  /** Full multi-voice script with speaker labels and delivery cues,
+   * e.g. "SHYAM: (casual) Teri almari mein." Rendered as the player's
+   * transcript and used as the source text if/when audio is generated. */
+  script: z.string().min(1).max(20000),
+});
+export type EpisodeAudio = z.infer<typeof episodeAudioSchema>;
+export type VoiceCastEntry = z.infer<typeof voiceCastEntrySchema>;
+
+/**
  * Admin-submitted episode payload. `readingTime`, `revision`, `publishedAt`,
  * `createdBy`/`updatedBy` are server-computed and intentionally absent from
  * the input schema — a client can never set them directly (see
@@ -30,6 +55,7 @@ export const episodeInputSchema = z
     location: z.string().min(1).max(160),
     sessionDate: z.coerce.date(),
     contentBlocks: contentBlocksSchema,
+    audio: episodeAudioSchema.optional(),
     tags: z.array(z.string().min(1)).default([]),
     status: contentStatusSchema.default('draft'),
     scheduledAt: z.coerce.date().optional(),
@@ -80,6 +106,8 @@ export interface EpisodeDocument {
   /** Minutes, computed from contentBlocks word count at save time. */
   readingTime: number;
   contentBlocks: z.infer<typeof contentBlocksSchema>;
+  /** Optional full-episode audio drama — see episodeAudioSchema. */
+  audio?: z.infer<typeof episodeAudioSchema>;
   tags: string[];
   /** Concept anchor ids, derived from embedded `concept` blocks — kept
    * denormalized here purely so list/search queries don't have to scan

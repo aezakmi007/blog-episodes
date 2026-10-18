@@ -56,6 +56,34 @@ interface FormValues {
   featured: boolean;
   metaTitle: string;
   metaDescription: string;
+  audioUrl: string;
+  audioDurationLabel: string;
+  audioVoiceCastText: string;
+  audioScript: string;
+}
+
+/** One voice-cast line per character, e.g. "shyam: Confident, dry, quick timing" —
+ * mirrors the comma-separated tags field's plain-text-in, structured-out pattern. */
+function parseVoiceCastText(text: string): { character: 'shyam' | 'salim' | 'narrator'; voiceDirection: string }[] {
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [label, ...rest] = line.split(':');
+      const character = (label ?? '').trim().toLowerCase();
+      return {
+        character: (character === 'shyam' || character === 'salim' ? character : 'narrator') as
+          | 'shyam'
+          | 'salim'
+          | 'narrator',
+        voiceDirection: rest.join(':').trim() || line,
+      };
+    });
+}
+
+function voiceCastToText(cast?: { character: string; voiceDirection: string }[]): string {
+  return (cast ?? []).map((entry) => `${entry.character}: ${entry.voiceDirection}`).join('\n');
 }
 
 function toDateInputValue(date?: Date | string): string {
@@ -110,6 +138,10 @@ export default function EpisodeForm({
       featured: episode?.featured ?? false,
       metaTitle: episode?.seo?.metaTitle ?? '',
       metaDescription: episode?.seo?.metaDescription ?? '',
+      audioUrl: episode?.audio?.url ?? '',
+      audioDurationLabel: episode?.audio?.durationLabel ?? '',
+      audioVoiceCastText: voiceCastToText(episode?.audio?.voiceCast),
+      audioScript: episode?.audio?.script ?? '',
     },
   });
 
@@ -153,6 +185,14 @@ export default function EpisodeForm({
       location: values.location,
       sessionDate: values.sessionDate,
       contentBlocks,
+      audio: values.audioScript.trim()
+        ? {
+            url: values.audioUrl.trim() || undefined,
+            durationLabel: values.audioDurationLabel.trim() || undefined,
+            voiceCast: parseVoiceCastText(values.audioVoiceCastText),
+            script: values.audioScript,
+          }
+        : undefined,
       tags: values.tagsText
         .split(',')
         .map((t) => t.trim())
@@ -337,6 +377,54 @@ export default function EpisodeForm({
           </Typography>
           <BlockEditor blocks={contentBlocks} onChange={setContentBlocks} />
         </Paper>
+
+        <Accordion variant="outlined">
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle1">Audio version (optional)</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={2}>
+              <Typography variant="body2" color="text.secondary">
+                A full-episode audio drama, separate from the text reader. Paste the script now — the player
+                shows it as a transcript even before a recording exists — then add the file URL once it's
+                recorded (upload via /admin/media, or an external host) or generated with a text-to-speech tool.
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, sm: 8 }}>
+                  <TextField
+                    label="Audio file URL (optional)"
+                    fullWidth
+                    {...register('audioUrl')}
+                    helperText="Leave blank until the recording exists — the transcript still shows."
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <TextField label="Duration (optional)" fullWidth placeholder="e.g. 9 min" {...register('audioDurationLabel')} />
+                </Grid>
+              </Grid>
+              <TextField
+                label="Voice cast direction (optional)"
+                fullWidth
+                multiline
+                minRows={3}
+                {...register('audioVoiceCastText')}
+                helperText="One line per voice: character: direction — e.g. shyam: male, 25-27, confident and dry, sarcastic timing"
+              />
+              <TextField
+                label="Audio script"
+                fullWidth
+                multiline
+                minRows={8}
+                {...register('audioScript')}
+                helperText={
+                  'Multi-voice script with speaker labels, e.g. SHYAM: (casual) Teri almari mein. ' +
+                  'Bracketed lines like [SFX: Light rain] render as stage directions.'
+                }
+                slotProps={{ htmlInput: { style: { fontFamily: 'monospace', fontSize: '0.85rem' } } }}
+              />
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
 
         <Accordion variant="outlined">
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>

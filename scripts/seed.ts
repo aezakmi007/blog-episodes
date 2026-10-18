@@ -6,7 +6,7 @@ import { calculateReadingTime } from '@/lib/utilities/reading-time';
 import { contentBlocksSchema, type ContentBlock } from '@/models/content-block.model';
 import type { SeriesDocument } from '@/models/series.model';
 import type { ModuleDocument } from '@/models/module.model';
-import type { EpisodeDocument } from '@/models/episode.model';
+import { episodeAudioSchema, type EpisodeDocument } from '@/models/episode.model';
 import { ensureAllIndexes } from './ensure-indexes';
 
 const SEED_ACTOR = 'seed-script';
@@ -1311,6 +1311,640 @@ const episode2ContentBlocks: ContentBlock[] = [
   },
 ];
 
+/**
+ * Episode 3 — "Data Mein Kachra Kahan Se Aata Hai?". Shyam teaches again,
+ * using a mohalla cricket club's old score register to walk Salim through
+ * the five common data-quality issues. This episode also ships a full
+ * multi-voice audio-drama script (see `episode3Audio` below) alongside the
+ * text reader.
+ */
+const episode3ContentBlocks: ContentBlock[] = [
+  {
+    id: 's3-scene-drawing-room',
+    type: 'scene',
+    order: 0,
+    sceneTitle: "Salim Ka Drawing Room",
+    location: "Salim's drawing room",
+    time: 'Sunday, 5:30 PM',
+    sessionLabel: 'Module 2 · Episode 3',
+    backgroundTheme: 'neutral',
+    ambientDescription:
+      'Baahar halki baarish ho rahi hai. Salim ki Ammi ne chai ke saath samose bheje hain. Shyam ke haath mein ek purana register hai — mohalla cricket club ka score register, jo usne Salim ki almari se nikala hai.',
+    transitionStyle: 'fade',
+  },
+  {
+    id: 's3-dialogue-register-discovery',
+    type: 'dialogue',
+    order: 1,
+    lines: [
+      { id: 'e3d1', speaker: 'salim', text: 'Ye register kahan se mila tujhe?', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e3d2',
+        speaker: 'shyam',
+        text: 'Teri almari mein. Teri purani diary ke neeche.',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      { id: 'e3d3', speaker: 'salim', text: 'Tune meri diary padhi?', emphasis: 'none', displayOrder: 2 },
+      {
+        id: 'e3d4',
+        speaker: 'shyam',
+        text: 'Nahi. Bas pehla page dekha. "Meri zindagi ka maqsad: Sachin banna." Bas wahi.',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      { id: 'e3d5', speaker: 'salim', text: 'Wo Class 6 mein likha tha!', emphasis: 'none', displayOrder: 4 },
+      {
+        id: 'e3d6',
+        speaker: 'shyam',
+        text: 'Aur ye register bata raha hai tu Class 6 mein bhi Sachin nahi tha. Chal, aaj ka data yahi hai.',
+        emphasis: 'bold',
+        displayOrder: 5,
+      },
+    ],
+  },
+  {
+    id: 's3-dialogue-intro',
+    type: 'dialogue',
+    order: 2,
+    lines: [
+      {
+        id: 'e3d7',
+        speaker: 'shyam',
+        text: 'Pichhle hafte tune mujhe attribute types padhaye. Aaj main poochta hoon: data ho, type bhi pata ho, phir bhi model galat seekh sakta hai?',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e3d8', speaker: 'salim', text: 'Haan, agar data hi kharab ho.', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e3d9',
+        speaker: 'shyam',
+        text: 'Bas. Aaj usi kachre ki baat karenge. Data quality issues. Paanch tarah ka kachra hota hai.',
+        emphasis: 'bold',
+        displayOrder: 2,
+      },
+    ],
+  },
+  {
+    id: 's3-table-five-issues',
+    type: 'table',
+    order: 3,
+    caption: 'Data quality ke 5 common issues',
+    columns: ['Issue', 'Simple meaning', 'Example'],
+    rows: [
+      ['Missing values', 'Value hi nahi hai', 'Blank cell, age "?"'],
+      ['Duplicate data', 'Same record baar-baar', 'Same customer 3 baar'],
+      ['Inconsistent data', 'Same cheez alag-alag tarah likhi', 'y, Yes, YES, yes'],
+      ['Noise', 'Galat ya impossible value', 'Age = -100, Age = "ABC"'],
+      ['Outliers', 'Baaki se bahut alag value', 'Product prices ₹500 ke aas-paas, ek ₹10,00,000'],
+    ],
+  },
+  {
+    id: 's3-divider-missing',
+    type: 'divider',
+    order: 4,
+    style: 'scene-break',
+    label: '1️⃣ Missing Values: Khaali Dabba',
+  },
+  {
+    id: 's3-dialogue-missing-register',
+    type: 'dialogue',
+    order: 5,
+    lines: [
+      {
+        id: 'e3d10',
+        speaker: 'shyam',
+        text: '2011 ka final match. Teri batting ke aage kya likha hai?',
+        stageDirection: 'register kholte hue',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      {
+        id: 'e3d11',
+        speaker: 'salim',
+        text: '...Kuch nahi. Khaali hai.',
+        stageDirection: 'jhuk ke dekhta hai',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      { id: 'e3d12', speaker: 'shyam', text: 'Kyun?', emphasis: 'none', displayOrder: 2 },
+      { id: 'e3d13', speaker: 'salim', text: 'Shayad scorer bhool gaya.', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e3d14',
+        speaker: 'shyam',
+        text: 'Ya shayad tu zero pe out hua aur tune khud page se mita diya.',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      { id: 'e3d15', speaker: 'salim', text: 'Ye allegation hai!', emphasis: 'none', displayOrder: 5 },
+      {
+        id: 'e3d16',
+        speaker: 'shyam',
+        text: 'Ye missing value hai. Aur dekh, data missing kyun hota hai, ye samajhna zaroori hai.',
+        conceptRef: 'missing-values',
+        emphasis: 'none',
+        displayOrder: 6,
+      },
+    ],
+  },
+  {
+    id: 's3-concept-missing-values',
+    type: 'concept',
+    order: 6,
+    conceptName: 'Missing Values',
+    anchorId: 'missing-values',
+    simpleDefinition: 'Dataset mein kisi attribute ki value hi absent hai — blank cell ya "?" jaisa.',
+    technicalDefinition:
+      'An attribute value that was not recorded for a given data object. Why a value is missing (not known, withheld, lost in entry, or a technical failure) determines how it should be handled.',
+    realWorldExample:
+      'Log jaante hi nahi (blood group), log batana nahi chahte (salary, age, weight), manual entry ki galti (form field skip), ya technical issue (web form submit hote waqt data lost ho gaya).',
+    relatedTerms: ['missing data', 'blank', 'null'],
+    bookmarkable: true,
+  },
+  {
+    id: 's3-divider-duplicate',
+    type: 'divider',
+    order: 7,
+    style: 'scene-break',
+    label: '2️⃣ Duplicate Data: Ek Hi Banda, Teen Entries',
+  },
+  {
+    id: 's3-dialogue-duplicate',
+    type: 'dialogue',
+    order: 8,
+    lines: [
+      {
+        id: 'e3d17',
+        speaker: 'shyam',
+        text: 'Ab ye dekh. Season ke players ki list.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e3d18', speaker: 'salim', text: 'Salim Khan, Salim K., S. Khan... Teen Salim?', emphasis: 'none', displayOrder: 1 },
+      { id: 'e3d19', speaker: 'shyam', text: 'Teeno tu hi hai.', emphasis: 'none', displayOrder: 2 },
+      { id: 'e3d20', speaker: 'salim', text: 'To?', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e3d21',
+        speaker: 'shyam',
+        text: 'To club ke records ke hisaab se teen alag Salim ne us season mein 12 run banaye. Matlab tere real average se data teen guna confused hai.',
+        conceptRef: 'duplicate-data',
+        emphasis: 'bold',
+        displayOrder: 4,
+      },
+      { id: 'e3d22', speaker: 'salim', text: 'Tu insult kar raha hai ya padha raha hai?', emphasis: 'none', displayOrder: 5 },
+      { id: 'e3d23', speaker: 'shyam', text: 'Dono. Multitasking.', emphasis: 'none', displayOrder: 6 },
+    ],
+  },
+  {
+    id: 's3-dialogue-duplicate-ml',
+    type: 'dialogue',
+    order: 9,
+    lines: [
+      {
+        id: 'e3d24',
+        speaker: 'shyam',
+        text: 'ML mein duplicate ka problem samajh. Maan le ek e-commerce dataset mein ek hi customer 5 baar hai. Model sochega aise 5 customers hain, aur unka behaviour zarurat se zyada important ho jayega.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      {
+        id: 'e3d25',
+        speaker: 'salim',
+        text: 'Matlab model kisi ek bande ko poori public samajh lega.',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      {
+        id: 'e3d26',
+        speaker: 'shyam',
+        text: 'Bilkul. Jaise tere ghar mein ek baar maine Ammi ke biryani ki tareef ki, aur ab tak har Eid pe teen plate bhejti hain.',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      { id: 'e3d27', speaker: 'salim', text: 'Wo duplicate nahi, pyaar hai.', emphasis: 'none', displayOrder: 3 },
+      { id: 'e3d28', speaker: 'shyam', text: 'Model ke liye dono same hain.', emphasis: 'none', displayOrder: 4 },
+    ],
+  },
+  {
+    id: 's3-concept-duplicate-data',
+    type: 'concept',
+    order: 10,
+    conceptName: 'Duplicate Data',
+    anchorId: 'duplicate-data',
+    simpleDefinition: 'Same record dataset mein ek se zyada baar maujood hai.',
+    technicalDefinition:
+      'Multiple records in a dataset that represent the same real-world entity. Duplicates bias a model by over-weighting whatever that entity\'s behaviour happens to be.',
+    realWorldExample:
+      'Ek customer ka naam "Salim Khan", "Salim K." aur "S. Khan" se teen alag records ban jaaye — model unhe teen alag log samjhega.',
+    relatedTerms: ['deduplication', 'bias', 'record linkage'],
+    bookmarkable: true,
+  },
+  {
+    id: 's3-divider-inconsistent',
+    type: 'divider',
+    order: 11,
+    style: 'scene-break',
+    label: '3️⃣ Inconsistent Data: Same Baat, Alag Andaaz',
+  },
+  {
+    id: 's3-dialogue-inconsistent',
+    type: 'dialogue',
+    order: 12,
+    lines: [
+      { id: 'e3d29', speaker: 'shyam', text: '"Match jeeta?" column dekh.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e3d30', speaker: 'salim', text: 'y, Yes, YES, yes, Y, haan...', emphasis: 'none', displayOrder: 1 },
+      { id: 'e3d31', speaker: 'shyam', text: 'Humein pata hai sab ka matlab ek hi hai. Computer ko?', emphasis: 'none', displayOrder: 2 },
+      { id: 'e3d32', speaker: 'salim', text: 'Computer ko chhe alag answer dikhenge.', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e3d33',
+        speaker: 'shyam',
+        text: 'Exactly. Aur dates bhi dekh: kahin "15-Aug-2011", kahin "2011-08-15", kahin "15/08/2011".',
+        conceptRef: 'inconsistent-data',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      {
+        id: 'e3d34',
+        speaker: 'salim',
+        text: 'Ye to waisa hai jaise tu mera naam phone mein "Salim", "Salim Bhai" aur "Salim Udhaar" teen naam se save karta hai.',
+        emphasis: 'none',
+        displayOrder: 5,
+      },
+      {
+        id: 'e3d35',
+        speaker: 'shyam',
+        text: '"Salim Udhaar" sabse accurate attribute hai. ₹500 abhi tak pending hain.',
+        emphasis: 'none',
+        displayOrder: 6,
+      },
+    ],
+  },
+  {
+    id: 's3-concept-inconsistent-data',
+    type: 'concept',
+    order: 13,
+    conceptName: 'Inconsistent Data',
+    anchorId: 'inconsistent-data',
+    simpleDefinition: 'Same cheez ko dataset mein alag-alag tarah likha gaya hai.',
+    technicalDefinition:
+      'Values representing the same underlying fact but recorded in different formats, spellings, cases or units — e.g. "yes"/"YES"/"Y", three different date formats, or kg vs pounds. Fix by standardizing to one format per column.',
+    realWorldExample:
+      'Same cheez ke alag naam bhi isi mein aata hai — jaise "AI" aur "Artificial Intelligence" alag category ban jaana.',
+    relatedTerms: ['standardization', 'normalization', 'data cleaning'],
+    bookmarkable: true,
+  },
+  {
+    id: 's3-divider-noise',
+    type: 'divider',
+    order: 14,
+    style: 'scene-break',
+    label: '4️⃣ Noise: Jo Ho Hi Nahi Sakta',
+  },
+  {
+    id: 's3-dialogue-noise',
+    type: 'dialogue',
+    order: 15,
+    lines: [
+      { id: 'e3d36', speaker: 'shyam', text: 'Ab age column dekh.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e3d37', speaker: 'salim', text: '14, 15, 13, -100, 350, "ABC"...', emphasis: 'none', displayOrder: 1 },
+      { id: 'e3d38', speaker: 'shyam', text: 'Bata, kaunse values galat hain?', emphasis: 'none', displayOrder: 2 },
+      {
+        id: 'e3d39',
+        speaker: 'salim',
+        text: '-100 saal ka koi nahi hota. 350 saal ka bowler bhi nahi tha. Aur "ABC" age kaise ho sakti hai?',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      {
+        id: 'e3d40',
+        speaker: 'shyam',
+        text: 'Wo Pappu ne bhara tha. Usse laga form mein naam ki initials maangi hain.',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      { id: 'e3d41', speaker: 'salim', text: 'Pappu ab kya karta hai?', emphasis: 'none', displayOrder: 5 },
+      { id: 'e3d42', speaker: 'shyam', text: 'Data entry operator hai.', emphasis: 'none', displayOrder: 6 },
+      {
+        id: 'e3d43',
+        speaker: 'salim',
+        text: 'Isliye duniya ka data kharab hai!',
+        stageDirection: 'chai thookne se bachte hue',
+        emphasis: 'none',
+        displayOrder: 7,
+      },
+    ],
+  },
+  {
+    id: 's3-concept-noise',
+    type: 'concept',
+    order: 16,
+    conceptName: 'Noise',
+    anchorId: 'noise',
+    simpleDefinition: 'Data mein random errors ya galat values jo reality ko represent nahi karti.',
+    technicalDefinition:
+      'Random errors or invalid values introduced by measurement, sensor or entry mistakes — not genuine signal. Usually a candidate for fixing or removing, since it doesn\'t reflect any real underlying case.',
+    realWorldExample:
+      'Age = -100 ya 350, numeric column mein text ("ABC"), ya faulty sensor reading: 30°C, 30.2°C, 75°C, 29.9°C.',
+    relatedTerms: ['measurement error', 'invalid value', 'data cleaning'],
+    bookmarkable: true,
+  },
+  {
+    id: 's3-divider-outliers',
+    type: 'divider',
+    order: 17,
+    style: 'scene-break',
+    label: '5️⃣ Outliers: Alag Hai, Par Galat Ho Ye Zaroori Nahi',
+  },
+  {
+    id: 's3-dialogue-outlier-raju',
+    type: 'dialogue',
+    order: 18,
+    lines: [
+      { id: 'e3d44', speaker: 'salim', text: 'Ab ye dekh! 2012 ka match. Raju: 147 runs.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e3d45', speaker: 'shyam', text: 'Baaki sab ke runs?', emphasis: 'none', displayOrder: 1 },
+      { id: 'e3d46', speaker: 'salim', text: '10, 15, 8, 22, 12...', emphasis: 'none', displayOrder: 2 },
+      { id: 'e3d47', speaker: 'shyam', text: 'To 147 kya hai?', emphasis: 'none', displayOrder: 3 },
+      { id: 'e3d48', speaker: 'salim', text: 'Noise! Gully cricket mein 147 kaun banata hai?', emphasis: 'none', displayOrder: 4 },
+      {
+        id: 'e3d49',
+        speaker: 'shyam',
+        text: 'Raju ne banaya tha. Main wahan tha. Tu bhi wahan tha. Bas tu fielding karte waqt naali mein gend dhoondh raha tha.',
+        emphasis: 'none',
+        displayOrder: 5,
+      },
+      { id: 'e3d50', speaker: 'salim', text: '...Haan, yaad aaya.', emphasis: 'none', displayOrder: 6 },
+      {
+        id: 'e3d51',
+        speaker: 'shyam',
+        text: 'Yahi farak hai. 147 baaki values se bahut alag hai, isliye outlier hai. Lekin galat nahi hai. Real hai.',
+        conceptRef: 'outlier',
+        emphasis: 'bold',
+        displayOrder: 7,
+      },
+    ],
+  },
+  {
+    id: 's3-confusion-noise-vs-outlier',
+    type: 'confusion',
+    order: 19,
+    misconception: 'Agar ek value baaki sab se bahut alag hai, to wo galat hai ya noise hai.',
+    clarification:
+      'Noise wo hai jo ho hi nahi sakta, ya galti se aayi hai — jaise Age = -100. Outlier wo hai jo possible hai, bas baaki sab se bahut alag hai — jaise Raju ke 147 runs, ya company mein CEO ki salary. Outlier mile to seedha delete mat karo: pehle check karo ki ye typing ki galti hai, ya real but rare case hai, ya domain mein aisi value possible hai. Fraud detection jaise cases mein to outlier hi dhoondhna hota hai.',
+    relatedConceptRef: 'outlier',
+  },
+  {
+    id: 's3-concept-outlier',
+    type: 'concept',
+    order: 20,
+    conceptName: 'Outlier',
+    anchorId: 'outlier',
+    simpleDefinition: 'Ek value jo baaki dataset se bahut alag hai — lekin galat hona zaroori nahi.',
+    technicalDefinition:
+      'A data point that differs significantly from other observations. Unlike noise, an outlier can be a genuine, valid case — deciding whether to fix, remove, or keep it requires checking whether it is a data-entry error, a real rare event, or expected in the domain.',
+    realWorldExample:
+      'Gully cricket mein zyada­tar scores 10-20 ke beech hain, lekin Raju ne ek din 147 banaye — real hai, sirf rare hai.',
+    relatedTerms: ['anomaly', 'fraud detection', 'rare event'],
+    bookmarkable: true,
+  },
+  {
+    id: 's3-examtip-outlier-checklist',
+    type: 'examTip',
+    order: 21,
+    tip: 'Outlier mila to delete mat karo turant. Pehle poocho: (1) kya ye typing ki galti hai, jaise ₹1,000 ki jagah ₹10,00,000 type ho gaya? (2) kya ye real but rare case hai? (3) domain mein aisi value possible hai? Galti ho to fix karo, real ho to sochke decide karo.',
+    importance: 'high',
+  },
+  {
+    id: 's3-table-university-dataset',
+    type: 'table',
+    order: 22,
+    caption: 'Exam-style question: Ek university ka student dataset',
+    columns: ['Name', 'Age', 'Email', 'Specialization', 'Admission Date', 'CGPA'],
+    rows: [
+      ['Rina', '22', 'rina@example.com', 'AI', '15-Aug-2022', '8.2'],
+      ['Dev', '23', 'dev [at] mail.com', 'Cybersecurity', '2022-08-15', '7.8'],
+      ['Aarav', '22', 'aarav@example.com', 'Data Science', '15/08/2022', '9.1'],
+      ['Shweta', '22', '(blank)', 'Cybersecurity', '15-Aug-2022', '6.4'],
+      ['Rina', '22', 'rina@example.com', 'Artificial Intelligence', '15-Aug-2022', '8.2'],
+      ['Mansi', '58', 'mansi123@gmail.com', 'Data Science', '15-Aug-2022', '7.0'],
+    ],
+    note: 'Issues kya hain? Socho before reading the answer below.',
+  },
+  {
+    id: 's3-example-university-issues',
+    type: 'example',
+    order: 23,
+    title: 'University Dataset — Issues Identified',
+    scenario: 'Upar wale dataset mein chhe tarah ke issues chhupe hain — har ek ko uske type se match karo.',
+    walkthroughMarkdown:
+      'Duplicate: Rina do baar hai (same email, same CGPA). Inconsistent category: "AI" vs "Artificial Intelligence" — same cheez, alag naam. Inconsistent date format: teen alag formats ek hi column mein. Invalid format: "dev [at] mail.com" valid email nahi hai. Missing value: Shweta ka email blank hai. Possible outlier: Mansi ki age 58 — M.Tech mein unusual hai, lekin possible hai.',
+    outcome: 'Verify karo, delete nahi — outlier ho sakta hai ki Mansi genuinely ek mature student ho.',
+  },
+  {
+    id: 's3-summary-recap',
+    type: 'summary',
+    order: 24,
+    title: 'Aaj Shyam Ne Salim Ko Kya Sikhaya?',
+    points: [
+      'Missing values: value absent hai — log jaante nahi, batana nahi chahte, entry miss hui ya data lost hua.',
+      'Duplicates: same record kai baar — model ka nazariya bias karte hain.',
+      'Inconsistent data: same cheez alag format mein — standardize karna padta hai.',
+      'Noise: galat ya impossible values, usually entry/measurement ki galti.',
+      'Outliers: bahut alag values — zaroori nahi ki galat hon.',
+      'Data clean kiye bina model train karna = garbage in, garbage out.',
+    ],
+  },
+  {
+    id: 's3-quiz-episode-3',
+    type: 'quiz',
+    order: 25,
+    title: 'Chai Break Quiz ☕',
+    questions: [
+      {
+        id: 'e3q1',
+        questionType: 'short-answer',
+        prompt: 'Ek temperature sensor ki readings: 31, 30.5, 31.2, 999, 30.8. "999" kya hai?',
+        acceptableAnswers: ['noise', 'sensor error', 'faulty reading'],
+        explanation:
+          'Zyada chance hai ye noise hai — sensor ka error code ya faulty reading, kyunki normal room temperature 999°C nahi hota.',
+      },
+      {
+        id: 'e3q2',
+        questionType: 'true-false',
+        prompt: 'Ek bank mein ek customer ka transaction ₹50 lakh ka hai, jabki average ₹5,000 hai. Kya ise delete kar dena chahiye?',
+        correctAnswer: false,
+        explanation:
+          'Nahi. Ye outlier hai, galat ho ye zaroori nahi. Ye genuine bada transaction ya fraud bhi ho sakta hai — verify karna chahiye, delete nahi.',
+      },
+      {
+        id: 'e3q3',
+        questionType: 'multiple-choice',
+        prompt: '"Male", "M", "male", "MALE" — ek column mein ye values hain. Ye kaunsa issue hai?',
+        options: [
+          { id: 'a', text: 'Missing values' },
+          { id: 'b', text: 'Duplicate data' },
+          { id: 'c', text: 'Inconsistent data' },
+          { id: 'd', text: 'Outlier' },
+        ],
+        correctOptionId: 'c',
+        explanation: 'Inconsistent data — same cheez (male), alag spelling aur case mein likhi gayi hai.',
+      },
+    ],
+  },
+  {
+    id: 's3-homework-episode-3',
+    type: 'homework',
+    order: 26,
+    dueLabel: 'Comments mein batao',
+    difficulty: 'easy',
+    tasks: [
+      'Apne phone ki contact list kholo aur dhoondo: ek duplicate contact.',
+      'Ek inconsistent naam dhoondo (jaise "Mummy", "Mom", "Maa").',
+      'Ek missing value dhoondo (number hai, naam nahi).',
+    ],
+  },
+  {
+    id: 's3-dialogue-teaser-banter',
+    type: 'dialogue',
+    order: 27,
+    lines: [
+      {
+        id: 'e3d52',
+        speaker: 'salim',
+        text: 'Agli baar meri class. Aur main batāunga ki is kachre ko saaf kaise karte hain.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e3d53', speaker: 'shyam', text: 'Matlab?', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e3d54',
+        speaker: 'salim',
+        text: 'Missing values ko kaise bhara jaata hai, aur outlier kaise pakda jaata hai, IQR aur 3-sigma rule se.',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      { id: 'e3d55', speaker: 'shyam', text: 'Aur Raju ke 147 runs?', emphasis: 'none', displayOrder: 3 },
+      { id: 'e3d56', speaker: 'salim', text: 'Unka bhi postmortem hoga. Maths se.', emphasis: 'none', displayOrder: 4 },
+    ],
+  },
+  {
+    id: 's3-teaser-next-episode',
+    type: 'teaser',
+    order: 28,
+    nextEpisodeTitle: 'Kachra Saaf Karo: Missing Values Aur Outliers Ka Ilaaj',
+    teaserText:
+      'Agle Sunday: Salim sikhayega ki missing values kaise bhare jaate hain, aur outliers IQR aur 3-sigma rule se kaise pakde jaate hain.',
+  },
+];
+
+/**
+ * Episode 3's full multi-voice audio-drama script. Rewritten in a more
+ * natural, contraction-heavy register for two Indian men in their
+ * mid-twenties — quick back-and-forth, trailing sentences, laughter
+ * breaking mid-line — rather than the more formal cadence of the text
+ * version above. `url` is intentionally left unset: recording or
+ * generating the actual audio (e.g. with a TTS tool or voice actors) is a
+ * production step outside this app. Paste the resulting file's URL into
+ * the admin "Audio file URL" field once it exists.
+ */
+const episode3Audio = {
+  durationLabel: '7 min listen',
+  voiceCast: [
+    {
+      character: 'shyam' as const,
+      voiceDirection:
+        'Male, 25-27, Indian. Confident, dry, a half-second delay before the punchline lands. Talks like he already knows he\'s right. Natural Hindi-English code-switching, not textbook-correct — drops word endings the way people actually do ("kahan se mila", not over-enunciated).',
+    },
+    {
+      character: 'salim' as const,
+      voiceDirection:
+        'Male, 24-26, Indian. Quicker, more reactive, voice jumps up when caught off guard or defensive. Laughs easily and often mid-sentence. Slightly higher energy than Shyam — the one who gets flustered first.',
+    },
+    {
+      character: 'narrator' as const,
+      voiceDirection:
+        'Warm, unhurried, almost like a friend setting the scene over chai — not a formal announcer voice. Used only for scene-setting; can be dropped entirely if sound effects carry the scene.',
+    },
+  ],
+  script: `[SFX: Halki baarish. Chai ke cups ki khanak.]
+NARRATOR: Sunday shaam, saade paanch baje. Salim ka drawing room. Baahar baarish, andar chai aur samose. Aur Shyam ke haath mein ek purana register.
+SALIM: (suspicious) Ye register kahan se mila tujhe?
+SHYAM: (casual) Teri almari mein. Teri purani diary ke neeche.
+SALIM: (shocked) Tune meri diary padhi?!
+SHYAM: Nahi yaar. Bas pehla page dekha. (pause, reading slowly) "Meri zindagi ka maqsad: Sachin banna."
+SALIM: (embarrassed) Wo Class 6 mein likha tha!
+SHYAM: Aur ye register bata raha hai tu Class 6 mein bhi Sachin nahi tha. (page flip SFX) Chal, aaj ka data yahi hai.
+[Beat]
+SHYAM: Dekh, pichhle hafte tune mujhe attribute types padhaye. Aaj main ek sawaal poochta hoon. Data hai, type bhi pata hai. Phir bhi model galat seekh sakta hai?
+SALIM: Haan... agar data hi kharab ho.
+SHYAM: Bas. Aaj usi kachre ki baat karenge. Data mein paanch tarah ka kachra hota hai. Missing values, duplicates, inconsistent data, noise, aur outliers.
+[SFX: Page flip]
+SHYAM: 2011 ka final match. Teri batting ke aage kya likha hai?
+SALIM: (leaning in, pause) ...Kuch nahi. Khaali hai.
+SHYAM: Kyun?
+SALIM: Shayad scorer bhool gaya.
+SHYAM: (deadpan) Ya shayad tu zero pe out hua aur tune khud page se mita diya.
+SALIM: (offended) Ye allegation hai!
+SHYAM: (laughing) Ye missing value hai. Aur samajh, data missing kyun hota hai. Kabhi log jaante hi nahi, jaise kisi se blood group poocho aur usse pata hi nahi. Kabhi batana nahi chahte, jaise salary. Kabhi form bharne wala field skip kar deta hai. Aur kabhi website pe submit karte waqt data hi lost ho jaata hai.
+SALIM: Matlab missing kyun hai, ye bhi important hai?
+SHYAM: Bilkul. Kyunki usi se decide hoga ki use bharna kaise hai. Wo agle hafte.
+[SFX: Page flip]
+SHYAM: Ab ye dekh. Season ke players ki list.
+SALIM: (reading) Salim Khan... Salim K.... S. Khan... (confused) teen Salim?
+SHYAM: Teeno tu hi hai.
+SALIM: To?
+SHYAM: To club ke records ke hisaab se teen alag Salim ne milke us season mein 12 run banaye.
+SALIM: (irritated laugh) Tu insult kar raha hai ya padha raha hai?
+SHYAM: Dono. Multitasking.
+SHYAM: (serious again) Ye duplicate data hai. Socho ek shopping dataset mein ek hi customer paanch baar aa gaya. Model sochega aise paanch customers hain, aur us ek bande ka behaviour zarurat se zyada important ho jayega.
+SALIM: Matlab model ek bande ko poori public samajh lega.
+SHYAM: Bilkul. Jaise maine ek baar Ammi ki biryani ki tareef ki thi, aur ab har Eid pe teen plate aati hain.
+SALIM: (warm) Wo duplicate nahi hai. Wo pyaar hai.
+SHYAM: Model ke liye dono same hain.
+[Beat]
+SHYAM: Ab "Match jeeta?" wala column dekh.
+SALIM: (reading quickly) y... Yes... YES... yes... Y... haan...
+SHYAM: Humein pata hai sab ka matlab ek hai. Computer ko?
+SALIM: Computer ko chhe alag answer dikhenge.
+SHYAM: Exactly. Isko bolte hain inconsistent data. Same cheez, alag tarah likhi hui. Dates mein bhi hota hai. Kahin pandrah August, kahin 2011-08-15, kahin slash wala format.
+SALIM: (grinning) Waise hi jaise tu mera number teen naam se save karta hai. Salim, Salim Bhai, aur... Salim Udhaar.
+SHYAM: "Salim Udhaar" sabse accurate attribute hai. Paanch sau rupaye abhi tak pending hain.
+SALIM: (groans) Phir se shuru...
+[SFX: Page flip]
+SHYAM: Ab age column dekh.
+SALIM: Chaudah... pandrah... terah... (pause) minus sau? Teen sau pachaas? Aur... "ABC"?
+SHYAM: Bata, kya galat hai?
+SALIM: Minus sau saal ka koi nahi hota! Teen sau pachaas saal ka bowler bhi nahi tha. Aur ABC age kaise ho sakti hai?
+SHYAM: Wo Pappu ne bhara tha. Usse laga form mein initials maangi hain.
+SALIM: Pappu ab kya karta hai?
+SHYAM: (deadpan) Data entry operator hai.
+SALIM: (chokes on chai, coughing laugh) Isliye duniya ka data kharab hai!
+SHYAM: (laughing) Ye noise hai. Aisi values jo reality mein ho hi nahi sakti, galti se aa gayi. Jaise sensor 30 degree dikha raha tha aur achaanak 75 bol diya.
+[Beat]
+SALIM: (excited) Ruk ruk, ye dekh! 2012. Raju, ek sau saintaalis runs! Baaki sab ke das, pandrah, aath... Ye bhi noise hai na? Gully cricket mein 147 kaun banata hai?
+SHYAM: (calm) Raju ne banaya tha. Main wahan tha. Tu bhi wahan tha.
+SALIM: Main?
+SHYAM: Haan. Tu fielding karte waqt naali mein gend dhoondh raha tha.
+SALIM: (long pause) ...Haan. Yaad aaya.
+SHYAM: Yahi fark samajh. 147 baaki values se bahut alag hai, isliye outlier hai. Lekin galat nahi hai. Real hai.
+SALIM: To noise aur outlier mein fark kya hai?
+SHYAM: (slow, clear, the key line) Noise wo hai jo ho hi nahi sakta, ya galti se aaya. Outlier wo hai jo ho sakta hai, bas baaki sab se bahut alag hai. Jaise company mein CEO ki salary.
+SALIM: To outlier mila to delete nahi karna?
+SHYAM: Pehle check kar. Typing ki galti hai? Real hai par rare hai? Aur fraud detection mein to outlier hi dhoondhna hota hai. Delete kar diya to chor bhi saath mein delete.
+[Beat. SFX: Rain softening.]
+SALIM: Theek hai teacher sahab. To aaj ka summary?
+SHYAM: Missing values, value hi nahi hai. Duplicates, ek record baar-baar. Inconsistent, same cheez alag format mein. Noise, galat ya impossible values. Aur outliers, bahut alag values, jo galat hon ye zaroori nahi. Aur ye sab saaf kiye bina model banaya to?
+SALIM: (together, tired) Garbage in, garbage out.
+SHYAM: Shabaash.
+[Beat]
+SALIM: Agli baar meri class. Aur main batāunga ki is kachre ko saaf kaise karte hain. Missing values kaise bharte hain, aur outlier kaise pakadte hain. IQR aur three-sigma rule se.
+SHYAM: Aur Raju ke 147 runs?
+SALIM: (mock-serious) Unka bhi postmortem hoga. Maths se.
+SHYAM: (laughing) Aur mere paanch sau?
+SALIM: Wo missing value hai. Permanently.
+[SFX: Both laughing. Rain fades out.]
+NARRATOR: Agle Sunday: "Kachra Saaf Karo." Missing values aur outliers ka ilaaj. Tab tak, chai peete raho, seekhte raho.`,
+};
+
 async function seed(): Promise<void> {
   const parsed = contentBlocksSchema.safeParse(contentBlocks);
   if (!parsed.success) {
@@ -1323,6 +1957,20 @@ async function seed(): Promise<void> {
   if (!parsedEpisode2.success) {
     console.error('Episode 2 seed content blocks failed validation:');
     console.error(parsedEpisode2.error.format());
+    process.exit(1);
+  }
+
+  const parsedEpisode3 = contentBlocksSchema.safeParse(episode3ContentBlocks);
+  if (!parsedEpisode3.success) {
+    console.error('Episode 3 seed content blocks failed validation:');
+    console.error(parsedEpisode3.error.format());
+    process.exit(1);
+  }
+
+  const parsedEpisode3Audio = episodeAudioSchema.safeParse(episode3Audio);
+  if (!parsedEpisode3Audio.success) {
+    console.error('Episode 3 audio script failed validation:');
+    console.error(parsedEpisode3Audio.error.format());
     process.exit(1);
   }
 
@@ -1446,7 +2094,7 @@ async function seed(): Promise<void> {
         concepts: ['nominal-attribute', 'ordinal-attribute', 'interval-attribute', 'ratio-attribute'],
         status: 'published',
         publishedAt: new Date('2026-02-15T05:15:00.000Z'),
-        featured: true,
+        featured: false,
         seo: {
           metaTitle: 'Bengaluru + Lucknow = ? | Data Ke Types Ki Kahani',
           metaDescription:
@@ -1462,11 +2110,68 @@ async function seed(): Promise<void> {
     { upsert: true, returnDocument: 'after' },
   );
 
+  const episode3Slug = toSlug('Data Mein Kachra Kahan Se Aata Hai');
+  const readingTime3 = calculateReadingTime(parsedEpisode3.data);
+
+  await db.collection<Omit<EpisodeDocument, '_id'>>(COLLECTIONS.EPISODES).findOneAndUpdate(
+    { slug: episode3Slug },
+    {
+      $set: {
+        seriesId,
+        moduleId,
+        seriesSlug,
+        seriesTitle: series.title,
+        moduleSlug,
+        moduleTitle: moduleDoc.title,
+        title: 'Data Mein Kachra Kahan Se Aata Hai?',
+        subtitle: 'Teesra Sunday: Missing values, duplicates, inconsistent data, noise aur outliers',
+        episodeNumber: 3,
+        teacherCharacter: 'shyam',
+        studentCharacter: 'salim',
+        excerpt:
+          'Baarish wali Sunday shaam, ek purana mohalla cricket register nikalta hai aur Shyam, Salim ko dikhata hai ki data mein paanch tarah ka kachra kahan chhupa hota hai.',
+        location: "Salim's drawing room",
+        sessionDate: new Date('2026-02-22T12:00:00.000Z'),
+        readingTime: readingTime3,
+        contentBlocks: parsedEpisode3.data,
+        // Audio deliberately NOT attached for this episode — the TTS
+        // pipeline (Indic Parler-TTS, Edge TTS, Google Chirp 3 HD) is
+        // still being evaluated for accent/expressiveness quality.
+        // `episode3Audio` above (still validated, just above) and the
+        // scripts under scripts/tts/ remain ready to use once a pipeline
+        // is settled; EpisodeAudioPlayer only renders when `audio` is
+        // present on the document, so leaving it unset here is enough to
+        // keep it off the public page — no UI code change needed.
+        tags: ['data', 'data-quality', 'data-cleaning'],
+        concepts: ['missing-values', 'duplicate-data', 'inconsistent-data', 'noise', 'outlier'],
+        status: 'published',
+        publishedAt: new Date('2026-02-22T12:00:00.000Z'),
+        featured: true,
+        seo: {
+          metaTitle: 'Data Mein Kachra Kahan Se Aata Hai?',
+          metaDescription:
+            'Shyam aur Salim samjhate hain data quality issues — missing values, duplicates, inconsistent data, noise aur outliers.',
+          noIndex: false,
+        },
+        createdBy: SEED_ACTOR,
+        updatedBy: SEED_ACTOR,
+      },
+      // Explicitly removes any `audio` field a previous seed run may have
+      // already written for this episode — $set alone only adds/updates
+      // listed fields, it doesn't clear ones left out.
+      $unset: { audio: '' },
+      $setOnInsert: { createdAt: now, revision: 1 },
+      $currentDate: { updatedAt: true },
+    },
+    { upsert: true, returnDocument: 'after' },
+  );
+
   console.warn('Seed complete:');
   console.warn(`  series:    /series/${seriesSlug}`);
   console.warn(`  module:    /series/${seriesSlug}/module/${moduleSlug}`);
   console.warn(`  episode 1: /episodes/${episodeSlug}`);
   console.warn(`  episode 2: /episodes/${episode2Slug}`);
+  console.warn(`  episode 3: /episodes/${episode3Slug} (audio not attached yet)`);
 }
 
 seed()
