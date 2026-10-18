@@ -386,7 +386,7 @@ export default function EpisodeForm({
             <Stack spacing={2}>
               <Typography variant="body2" color="text.secondary">
                 A full-episode audio drama, separate from the text reader. Paste the script now — the player
-                shows it as a transcript even before a recording exists — then add the file URL once it's
+                shows it as a transcript even before a recording exists — then add the file URL once it&apos;s
                 recorded (upload via /admin/media, or an external host) or generated with a text-to-speech tool.
               </Typography>
               <Grid container spacing={2}>
