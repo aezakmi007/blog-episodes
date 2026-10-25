@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Code Flow Tour — Shyam &amp; Salim Learn ML</title>
+  <meta name="description" content="Animated walkthrough of how requests flow through the Shyam & Salim Learn ML Next.js + MongoDB codebase: read path, admin login, publishing and the audio pipeline." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    html, body { margin: 0; min-height: 100vh; background: #04070f; display: grid; place-items: center; font-family: Inter, sans-serif; color: #94a3b8; }
+    main { display: grid; gap: 12px; justify-items: center; padding: 24px; }
+    h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    canvas { width: min(96vw, 1280px); aspect-ratio: 16 / 9; border-radius: 14px; box-shadow: 0 40px 100px rgba(0,0,0,.65), 0 0 0 1px rgba(255,255,255,.06); }
+    p { margin: 0; font-size: 13px; }
+    kbd { font-family: 'JetBrains Mono', monospace; background: #111a33; border: 1px solid #1f2a4a; border-radius: 4px; padding: 1px 6px; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Code flow tour of the Shyam &amp; Salim Learn ML codebase</h1>
+  <canvas id="stage" width="1280" height="720" aria-label="Animated diagram of the codebase's request flows"></canvas>
+  <p><kbd>Space</kbd> pause / play &nbsp; <kbd>→</kbd> next scene &nbsp; <kbd>←</kbd> previous scene</p>
+</main>
+<script>
+(() => {
+  const W = 1280, H = 720;
+  const stage = document.getElementById('stage');
+  const out = stage.getContext('2d');
+  const layer = document.createElement('canvas'); layer.width = W; layer.height = H;
+  const ctx = layer.getContext('2d');
+  const F = 'Inter, "Helvetica Neue", Arial, sans-serif';
+  const M = '"JetBrains Mono", Menlo, Consolas, monospace';
+
+  // ---------- palette: one colour per architectural layer ----------
+  const C = {
+    client: '#38bdf8', edge: '#818cf8', page: '#22d3ee', action: '#a78bfa', auth: '#fb7185',
+    valid: '#f472b6', service: '#fbbf24', repo: '#34d399', db: '#4ade80', script: '#fb923c', cache: '#e879f9',
+  };
+  const LAYER = {
+    client: 'Browser', edge: 'Edge / middleware', page: 'Presentation', action: 'Server Action / Route',
+    auth: 'Auth', valid: 'Validation', service: 'Service', repo: 'Repository', db: 'MongoDB',
+    script: 'Offline script', cache: 'Cache / SEO',
+  };
+
+  // ---------- helpers ----------
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+  const rgba = (hex, a) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+  };
+  function rr(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+  function fitFont(text, weight, size, family, maxW) {
+    let s = size;
+    ctx.font = `${weight} ${s}px ${family}`;
+    while (ctx.measureText(text).width > maxW && s > 8) { s -= 0.5; ctx.font = `${weight} ${s}px ${family}`; }
+  }
+
+  // ---------- static background (cached) ----------
+  const bg = document.createElement('canvas'); bg.width = W; bg.height = H;
+  (() => {
+    const b = bg.getContext('2d');
+    const g = b.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, '#060a17'); g.addColorStop(1, '#0b1226');
+    b.fillStyle = g; b.fillRect(0, 0, W, H);
+    const glow = (x, y, r, col, a) => {
+      const rg = b.createRadialGradient(x, y, 0, x, y, r);
+      rg.addColorStop(0, rgba(col, a)); rg.addColorStop(1, rgba(col, 0));
+      b.fillStyle = rg; b.fillRect(0, 0, W, H);
+    };
+    glow(160, 60, 520, '#7c3aed', 0.16);
+    glow(1180, 700, 560, '#0891b2', 0.14);
+    glow(900, 120, 380, '#db2777', 0.06);
+    b.fillStyle = 'rgba(148,163,184,0.07)';
+    for (let x = 16; x < W; x += 32) for (let y = 16; y < H; y += 32) { b.fillRect(x, y, 1.4, 1.4); }
+    const v = b.createRadialGradient(W / 2, H / 2, H * 0.4, W / 2, H / 2, H);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.45)');
+    b.fillStyle = v; b.fillRect(0, 0, W, H);
+  })();
+
+  // ---------- shared UI pieces ----------
+  function pill(x, y, text, col, align = 'left') {
+    ctx.font = `700 11px ${F}`;
+    const tw = ctx.measureText(text).width, w = tw + 26, h = 24;
+    const left = align === 'center' ? x - w / 2 : x;
+    rr(left, y - h / 2, w, h, 12);
+    ctx.fillStyle = rgba(col, 0.12); ctx.fill();
+    ctx.strokeStyle = rgba(col, 0.5); ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = col; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, left + 13, y + 1);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function header(sc, t) {
+    const a = easeOut(clamp(t / 0.6));
+    ctx.save(); ctx.globalAlpha = a;
+    pill(60, 44, sc.tag, sc.accent || '#22d3ee');
+    ctx.textAlign = 'left';
+    ctx.font = `800 32px ${F}`; ctx.fillStyle = '#f8fafc';
+    ctx.fillText(sc.title, 60 + (1 - a) * -16, 94);
+    ctx.font = `400 15px ${F}`; ctx.fillStyle = '#94a3b8';
+    ctx.fillText(sc.subtitle, 60, 124);
+    ctx.restore();
+  }
+
+  function legend(keys, t) {
+    const a = clamp((t - 0.3) / 0.5);
+    if (a <= 0) return;
+    ctx.save(); ctx.globalAlpha = a * 0.95;
+    ctx.font = `500 12px ${F}`; ctx.textAlign = 'left';
+    const items = keys.map((k) => ({ k, w: ctx.measureText(LAYER[k]).width + 26 }));
+    const rows = [[]]; let rowW = 0;
+    for (const it of items) {
+      if (rowW + it.w > 560 && rows[rows.length - 1].length) { rows.push([]); rowW = 0; }
+      rows[rows.length - 1].push(it); rowW += it.w;
+    }
+    rows.forEach((row, ri) => {
+      let x = W - 60 - row.reduce((s, i) => s + i.w, 0);
+      const y = 48 + ri * 22;
+      for (const it of row) {
+        ctx.fillStyle = C[it.k];
+        ctx.beginPath(); ctx.arc(x + 5, y - 4, 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#94a3b8'; ctx.fillText(LAYER[it.k], x + 14, y);
+        x += it.w;
+      }
+    });
+    ctx.restore();
+  }
+
+  function caption(num, text, file, col, alpha, total, current) {
+    ctx.save();
+    rr(40, 630, W - 80, 66, 16);
+    ctx.fillStyle = 'rgba(10,16,36,0.88)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(148,163,184,0.14)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.globalAlpha = alpha;
+    let tx = 70;
+    if (num) {
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(84, 663, 17, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#0b1020'; ctx.font = `800 15px ${F}`; ctx.textAlign = 'center';
+      ctx.fillText(String(num), 84, 668.5);
+      tx = 116;
+    }
+    ctx.textAlign = 'left';
+    const maxW = W - 80 - (tx - 40) - (total ? total * 14 + 40 : 30);
+    fitFont(text, 600, 17, F, maxW); ctx.fillStyle = '#f1f5f9';
+    ctx.fillText(text, tx, 658);
+    fitFont(file, 500, 12.5, M, maxW); ctx.fillStyle = col;
+    ctx.fillText(file, tx, 681);
+    ctx.globalAlpha = 1;
+    if (total) {
+      for (let i = 0; i < total; i++) {
+        const x = W - 70 - (total - 1 - i) * 14;
+        const on = i <= current;
+        ctx.fillStyle = on ? col : 'rgba(148,163,184,0.25)';
+        ctx.beginPath(); ctx.arc(x, 663, i === current ? 5 : 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+
+  // ---------- node drawing ----------
+  function drawNode(n, appear, lit, since) {
+    if (appear <= 0) return;
+    const col = C[n.c], w = n.w || 200, h = n.h || 66;
+    const pulse = since >= 0 && since < 0.6 ? Math.sin((since / 0.6) * Math.PI) : 0;
+    ctx.save();
+    ctx.globalAlpha = appear;
+    ctx.translate(n.x, n.y + (1 - easeOut(appear)) * 14);
+    ctx.scale(1 + 0.05 * pulse, 1 + 0.05 * pulse);
+
+    // ripple ring on arrival
+    if (since >= 0 && since < 0.9) {
+      const p = since / 0.9;
+      ctx.save();
+      ctx.strokeStyle = rgba(col, (1 - p) * 0.7); ctx.lineWidth = 2;
+      rr(-w / 2 - 4 - p * 22, -h / 2 - 4 - p * 22, w + 8 + p * 44, h + 8 + p * 44, 18 + p * 10); ctx.stroke();
+      ctx.restore();
+    }
+
+    if (lit > 0) { ctx.shadowColor = rgba(col, 0.9); ctx.shadowBlur = 18 * lit + 22 * pulse; }
+    rr(-w / 2, -h / 2, w, h, 14);
+    ctx.fillStyle = '#0d1430'; ctx.fill();
+    ctx.shadowBlur = 0;
+    const fg = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
+    fg.addColorStop(0, rgba(col, 0.10 + 0.16 * lit)); fg.addColorStop(1, rgba(col, 0.03 + 0.06 * lit));
+    ctx.fillStyle = fg; ctx.fill();
+    ctx.strokeStyle = rgba(col, 0.28 + 0.72 * lit); ctx.lineWidth = 1.5; ctx.stroke();
+
+    // left accent bar
+    rr(-w / 2 + 7, -h / 2 + 12, 3, h - 24, 2);
+    ctx.fillStyle = rgba(col, 0.45 + 0.55 * lit); ctx.fill();
+
+    ctx.textAlign = 'center';
+    if (n.kind === 'blocks') {
+      fitFont(n.label, 700, 14, F, w - 30);
+      ctx.fillStyle = lit ? '#ffffff' : 'rgba(226,232,240,0.7)';
+      ctx.fillText(n.label, 0, -h / 2 + 24);
+      const cols = 6, cw = (w - 28) / cols, chH = 22;
+      n.chips.forEach((chip, i) => {
+        const cx = -w / 2 + 14 + (i % cols) * cw + cw / 2;
+        const cy = -h / 2 + 50 + Math.floor(i / cols) * (chH + 7);
+        const on = since >= 0 ? clamp((since - i * 0.035) / 0.15) : lit > 0.5 ? 1 : 0;
+        rr(cx - cw / 2 + 2, cy - chH / 2, cw - 4, chH, 6);
+        ctx.fillStyle = on ? rgba(col, 0.12 + 0.18 * on) : 'rgba(148,163,184,0.06)'; ctx.fill();
+        ctx.strokeStyle = rgba(col, 0.15 + 0.5 * on); ctx.lineWidth = 1; ctx.stroke();
+        fitFont(chip, 500, 10, M, cw - 10);
+        ctx.fillStyle = on ? '#e2e8f0' : 'rgba(148,163,184,0.55)';
+        ctx.fillText(chip, cx, cy + 3.5);
+      });
+    } else {
+      fitFont(n.label, 600, 15, F, w - 30);
+      ctx.fillStyle = lit ? '#ffffff' : 'rgba(226,232,240,0.72)';
+      ctx.fillText(n.label, 3, n.sub ? -4 : 5);
+      if (n.sub) {
+        fitFont(n.sub, 500, 11.5, M, w - 28);
+        ctx.fillStyle = rgba(col, 0.55 + 0.45 * lit);
+        ctx.fillText(n.sub, 3, 16);
+      }
+    }
+    ctx.restore();
+  }
+
+  // ---------- edge geometry ----------
+  function border(n, tx, ty) {
+    const hw = (n.w || 200) / 2 + 7, hh = (n.h || 66) / 2 + 7;
+    const dx = tx - n.x, dy = ty - n.y;
+    const s = Math.min(dx ? hw / Math.abs(dx) : Infinity, dy ? hh / Math.abs(dy) : Infinity);
+    return [n.x + dx * s, n.y + dy * s];
+  }
+  function segment(a, b, off) {
+    const p = border(a, b.x, b.y), q = border(b, a.x, a.y);
+    const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1;
+    const nx = -dy / L, ny = dx / L;
+    return { x1: p[0] + nx * off, y1: p[1] + ny * off, x2: q[0] + nx * off, y2: q[1] + ny * off, L };
+  }
+  function arrowHead(x, y, ang, col, a) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(ang);
+    ctx.fillStyle = rgba(col, a);
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-11, -5.5); ctx.lineTo(-8, 0); ctx.lineTo(-11, 5.5); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+  function drawPacket(sg, e, c1, c2) {
+    const at = (u) => [sg.x1 + (sg.x2 - sg.x1) * u, sg.y1 + (sg.y2 - sg.y1) * u];
+    for (let k = 14; k >= 1; k--) {
+      const u = e - k * (26 / sg.L);
+      if (u < 0) continue;
+      const [x, y] = at(u);
+      ctx.fillStyle = rgba(c2, (1 - k / 15) * 0.5);
+      ctx.beginPath(); ctx.arc(x, y, 6.5 * (1 - k / 16), 0, Math.PI * 2); ctx.fill();
+    }
+    const [x, y] = at(e);
+    ctx.save();
+    ctx.shadowColor = c2; ctx.shadowBlur = 26;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 10);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(0.45, c2); g.addColorStop(1, rgba(c1, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // ---------- flow scene ----------
+  const FLOW_START = 1.1, TRAVEL = 0.62, HOLD = 2.0;
+
+  function renderFlow(sc, t) {
+    header(sc, t);
+    const keys = [...new Set(Object.values(sc.nodes).map((n) => n.c))];
+    legend(keys, t);
+
+    const ids = Object.keys(sc.nodes);
+    const S = sc.step, n = sc.steps.length, rel = t - FLOW_START;
+    const k = rel < 0 ? -1 : Math.min(n, Math.floor(rel / S));
+
+    const appear = {};
+    ids.forEach((id, i) => { appear[id] = clamp((t - 0.25 - i * 0.07) / 0.4); });
+
+    // arrival bookkeeping
+    const firstArrive = {}, lastArrive = {};
+    if (t >= FLOW_START) { firstArrive[sc.steps[0].f] = FLOW_START; lastArrive[sc.steps[0].f] = FLOW_START; }
+    sc.steps.forEach((s, i) => {
+      const a = FLOW_START + i * S + TRAVEL * S;
+      if (t >= a) { if (firstArrive[s.t] === undefined) firstArrive[s.t] = a; lastArrive[s.t] = a; }
+    });
+
+    // edges
+    const keyOf = (s) => `${s.f}>${s.t}`;
+    const stepKeys = new Set(sc.steps.map(keyOf));
+    const seen = new Set();
+    sc.steps.forEach((s) => {
+      const key = keyOf(s);
+      if (seen.has(key)) return; seen.add(key);
+      const a = sc.nodes[s.f], b = sc.nodes[s.t];
+      const off = stepKeys.has(`${s.t}>${s.f}`) ? 7 : 0;
+      const sg = segment(a, b, off);
+      const vis = Math.min(appear[s.f], appear[s.t]);
+      // base dashed track
+      ctx.save();
+      ctx.setLineDash([4, 7]); ctx.lineDashOffset = -t * 14;
+      ctx.strokeStyle = `rgba(148,163,184,${0.22 * vis})`; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(sg.x1, sg.y1); ctx.lineTo(sg.x2, sg.y2); ctx.stroke();
+      ctx.restore();
+      // progress along this edge (max over steps that use it)
+      let prog = 0;
+      sc.steps.forEach((s2, i) => { if (keyOf(s2) === key) prog = Math.max(prog, clamp((t - FLOW_START - i * S) / (TRAVEL * S))); });
+      if (prog > 0) {
+        const e = ease(prog);
+        const ex = sg.x1 + (sg.x2 - sg.x1) * e, ey = sg.y1 + (sg.y2 - sg.y1) * e;
+        const g = ctx.createLinearGradient(sg.x1, sg.y1, sg.x2, sg.y2);
+        g.addColorStop(0, rgba(C[a.c], 0.85)); g.addColorStop(1, rgba(C[b.c], 0.85));
+        ctx.save();
+        ctx.strokeStyle = g; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+        ctx.shadowColor = rgba(C[b.c], 0.6); ctx.shadowBlur = 8;
+        ctx.beginPath(); ctx.moveTo(sg.x1, sg.y1); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.restore();
+        if (prog >= 1) arrowHead(sg.x2, sg.y2, Math.atan2(sg.y2 - sg.y1, sg.x2 - sg.x1), C[b.c], 0.95);
+      }
+    });
+
+    // nodes
+    const cur = k >= 0 && k < n ? sc.steps[k] : null;
+    ids.forEach((id) => {
+      const nd = sc.nodes[id];
+      let lit = 0;
+      if (firstArrive[id] !== undefined) lit = k >= n ? 0.8 : 0.5;
+      if (cur && (cur.f === id || (cur.t === id && lastArrive[id] !== undefined && lastArrive[id] >= FLOW_START + k * S))) lit = 1;
+      const since = lastArrive[id] !== undefined ? t - lastArrive[id] : -1;
+      drawNode(nd, appear[id], lit, since);
+    });
+
+    // packet
+    if (cur) {
+      const p = clamp((rel - k * S) / (TRAVEL * S));
+      if (p > 0 && p < 1) {
+        const off = stepKeys.has(`${cur.t}>${cur.f}`) ? 7 : 0;
+        const a = sc.nodes[cur.f], b = sc.nodes[cur.t];
+        drawPacket(segment(a, b, off), ease(p), C[a.c], C[b.c]);
+      }
+    }
+
+    // caption
+    if (k < 0) {
+      caption(0, sc.intro.caption, sc.intro.file, sc.accent, clamp((t - 0.3) / 0.4), n, -1);
+    } else if (k >= n) {
+      caption(0, sc.outro.caption, sc.outro.file, '#4ade80', clamp((rel - n * S) / 0.3), n, n - 1);
+    } else {
+      const col = C[sc.nodes[cur.t].c];
+      caption(k + 1, cur.caption, cur.file, col, clamp((rel - k * S) / 0.22), n, k);
+    }
+  }
+
+  // ---------- intro ----------
+  function renderIntro(t) {
+    const a = easeOut(clamp(t / 0.9));
+    ctx.save();
+    ctx.globalAlpha = a;
+    pill(W / 2, 190, 'CODE FLOW TOUR', '#22d3ee', 'center');
+    ctx.textAlign = 'center';
+    ctx.font = `800 66px ${F}`;
+    const title = 'Shyam & Salim Learn ML';
+    const tw = ctx.measureText(title).width;
+    const g = ctx.createLinearGradient(W / 2 - tw / 2, 0, W / 2 + tw / 2, 0);
+    g.addColorStop(0, '#22d3ee'); g.addColorStop(0.5, '#a78bfa'); g.addColorStop(1, '#f472b6');
+    ctx.fillStyle = g;
+    ctx.fillText(title, W / 2, 285 + (1 - a) * 24);
+    ctx.font = `italic 400 22px ${F}`; ctx.fillStyle = '#94a3b8';
+    ctx.fillText('“Do dost. Ek chai. Aur Machine Learning.”', W / 2, 330);
+    ctx.font = `500 18px ${F}`; ctx.fillStyle = '#cbd5e1';
+    ctx.fillText('How a request travels through this Next.js + MongoDB codebase', W / 2, 380);
+    ctx.restore();
+
+    const chips = [['Next.js App Router', C.page], ['TypeScript', C.client], ['MUI', C.action], ['Zod', C.valid], ['MongoDB + GridFS', C.db], ['Python TTS', C.script]];
+    ctx.font = `600 14px ${F}`;
+    const widths = chips.map(([s]) => ctx.measureText(s).width + 32);
+    let x = W / 2 - (widths.reduce((s, w) => s + w, 0) + (chips.length - 1) * 12) / 2;
+    chips.forEach(([s, col], i) => {
+      const ca = easeOut(clamp((t - 0.6 - i * 0.12) / 0.4));
+      ctx.save(); ctx.globalAlpha = ca;
+      const y = 440 + (1 - ca) * 12;
+      rr(x, y - 17, widths[i], 34, 17);
+      ctx.fillStyle = rgba(col, 0.12); ctx.fill(); ctx.strokeStyle = rgba(col, 0.55); ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x + 15, y, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#e2e8f0'; ctx.textAlign = 'left'; ctx.font = `600 14px ${F}`;
+      ctx.fillText(s, x + 24, y + 5);
+      ctx.restore();
+      x += widths[i] + 12;
+    });
+
+    const flows = [['1', 'Reader opens an episode', C.client], ['2', 'Admin signs in', C.auth], ['3', 'Admin publishes', C.service], ['4', 'Audio pipeline', C.script]];
+    const cw = 250, gap = 18, x0 = W / 2 - (flows.length * cw + (flows.length - 1) * gap) / 2;
+    flows.forEach(([num, label, col], i) => {
+      const fa = easeOut(clamp((t - 1.4 - i * 0.15) / 0.45));
+      ctx.save(); ctx.globalAlpha = fa;
+      const cx = x0 + i * (cw + gap), y = 540 + (1 - fa) * 14;
+      rr(cx, y, cw, 58, 14);
+      ctx.fillStyle = 'rgba(13,20,48,0.9)'; ctx.fill(); ctx.strokeStyle = rgba(col, 0.45); ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(cx + 30, y + 29, 14, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#0b1020'; ctx.font = `800 14px ${F}`; ctx.textAlign = 'center'; ctx.fillText(num, cx + 30, y + 34);
+      ctx.fillStyle = '#e2e8f0'; ctx.font = `600 15px ${F}`; ctx.textAlign = 'left'; ctx.fillText(label, cx + 54, y + 34);
+      ctx.restore();
+    });
+  }
+
+  // ---------- architecture overview ----------
+  const BANDS = [
+    ['client', 'Browser', 'Reader & admin UI · client islands (quiz, editor, audio)'],
+    ['edge', 'Edge', 'next.config.mjs security headers · middleware.ts cookie check'],
+    ['page', 'Presentation', 'src/app (Server Components) · src/components'],
+    ['action', 'Server Actions & Routes', 'src/features/*/actions.ts · src/app/api/*'],
+    ['service', 'Services', 'src/services — publishing rules · audit · revalidate'],
+    ['repo', 'Repositories', 'src/repositories — the only code that talks to MongoDB'],
+    ['db', 'MongoDB', 'collections + GridFS audio bucket · src/lib/db/mongodb.ts'],
+  ];
+  const BAND_Y0 = 150, BAND_H = 54, BAND_GAP = 10, BAND_X = 100, BAND_W = 780;
+  const bandY = (i) => BAND_Y0 + i * (BAND_H + BAND_GAP) + BAND_H / 2;
+
+  function renderOverview(t) {
+    const sc = { tag: 'THE BIG PICTURE', title: 'Layered architecture', subtitle: 'Seven layers, one direction of travel — every arrow is enforced in code, not just convention', accent: '#a78bfa' };
+    header(sc, t);
+
+    const DOWN0 = 2.4, DOWN1 = 5.0, UP0 = 5.5, UP1 = 7.6;
+    let py = null;
+    if (t >= DOWN0 && t <= DOWN1) py = bandY(0) + (bandY(6) - bandY(0)) * ease((t - DOWN0) / (DOWN1 - DOWN0));
+    else if (t >= UP0 && t <= UP1) py = bandY(6) - (bandY(6) - bandY(0)) * ease((t - UP0) / (UP1 - UP0));
+
+    // rail
+    const railA = clamp((t - 1.6) / 0.5);
+    ctx.save(); ctx.globalAlpha = railA;
+    ctx.setLineDash([3, 6]); ctx.strokeStyle = 'rgba(148,163,184,0.35)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(66, bandY(0)); ctx.lineTo(66, bandY(6)); ctx.stroke();
+    ctx.restore();
+
+    BANDS.forEach(([c, label, path], i) => {
+      const a = easeOut(clamp((t - 0.3 - i * 0.16) / 0.45));
+      if (a <= 0) return;
+      const y = bandY(i), col = C[c];
+      const near = py !== null ? clamp(1 - Math.abs(py - y) / 45) : 0;
+      const settled = t > DOWN1 && t < UP0 ? 0.6 : t > UP1 ? 0.45 : 0;
+      const lit = Math.max(near, settled);
+      ctx.save();
+      ctx.globalAlpha = a;
+      ctx.translate((1 - a) * -40, 0);
+      if (lit > 0) { ctx.shadowColor = col; ctx.shadowBlur = 24 * lit; }
+      rr(BAND_X, y - BAND_H / 2, BAND_W, BAND_H, 12);
+      ctx.fillStyle = '#0d1430'; ctx.fill(); ctx.shadowBlur = 0;
+      const g = ctx.createLinearGradient(BAND_X, 0, BAND_X + BAND_W, 0);
+      g.addColorStop(0, rgba(col, 0.22 + 0.25 * lit)); g.addColorStop(0.6, rgba(col, 0.05)); g.addColorStop(1, rgba(col, 0.02));
+      ctx.fillStyle = g; ctx.fill();
+      ctx.strokeStyle = rgba(col, 0.35 + 0.6 * lit); ctx.lineWidth = 1.3; ctx.stroke();
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(66, y, 6 + 2 * lit, 0, Math.PI * 2); ctx.fill();
+      ctx.textAlign = 'left';
+      ctx.font = `700 16px ${F}`; ctx.fillStyle = '#f8fafc'; ctx.fillText(label, BAND_X + 22, y + 6);
+      ctx.font = `500 12.5px ${M}`; ctx.fillStyle = rgba(col, 0.9); ctx.fillText(path, BAND_X + 250, y + 5);
+      ctx.restore();
+    });
+
+    // side boxes
+    const side = [
+      { y: 150, h: 238, c: 'auth', title: 'Cross-cutting', items: ['lib/auth — session guards', 'models/ — Zod schemas', 'lib/env.ts — secrets boundary', 'lib/seo — sitemap & revalidate', 'theme/ — MUI tokens'] },
+      { y: 404, h: 184, c: 'script', title: 'Offline scripts', items: ['seed.ts · seed-admin.ts', 'ensure-indexes.ts', 'tts/*.py → episode audio', 'attach-episode-audio.ts'] },
+    ];
+    side.forEach((b, i) => {
+      const a = easeOut(clamp((t - 1.4 - i * 0.25) / 0.5));
+      if (a <= 0) return;
+      const col = C[b.c];
+      ctx.save(); ctx.globalAlpha = a; ctx.translate((1 - a) * 30, 0);
+      rr(910, b.y, 310, b.h, 14);
+      ctx.fillStyle = 'rgba(13,20,48,0.92)'; ctx.fill();
+      ctx.strokeStyle = rgba(col, 0.45); ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.textAlign = 'left'; ctx.font = `700 15px ${F}`; ctx.fillStyle = col; ctx.fillText(b.title, 932, b.y + 30);
+      b.items.forEach((s, j) => {
+        const ia = clamp((t - 1.7 - i * 0.25 - j * 0.08) / 0.3);
+        ctx.globalAlpha = a * ia;
+        ctx.fillStyle = rgba(col, 0.8); ctx.beginPath(); ctx.arc(938, b.y + 60 + j * 34 - 4, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.font = `500 12.5px ${M}`; ctx.fillStyle = '#cbd5e1'; ctx.fillText(s, 950, b.y + 60 + j * 34);
+      });
+      ctx.restore();
+    });
+
+    // packet on rail
+    if (py !== null) {
+      const goingDown = t <= DOWN1;
+      const sg = { x1: 66, y1: goingDown ? bandY(0) : bandY(6), x2: 66, y2: goingDown ? bandY(6) : bandY(0), L: bandY(6) - bandY(0) };
+      const e = Math.abs(py - sg.y1) / sg.L;
+      drawPacket(sg, e, goingDown ? '#38bdf8' : '#4ade80', goingDown ? '#a78bfa' : '#22d3ee');
+    }
+
+    let cap;
+    if (t < DOWN0) cap = ['Five layers of code, plus the browser, the edge and the database', 'docs/architecture.md'];
+    else if (t < UP0) cap = ['Request ↓  travels down — no layer is ever skipped', 'UI → Action → Service → Repository → MongoDB driver'];
+    else cap = ['Response ↑  data flows back up as typed objects, then rendered HTML', 'Repository → Service → Server Component → Browser'];
+    const capStart = t < DOWN0 ? 0.3 : t < UP0 ? DOWN0 : UP0;
+    caption(0, cap[0], cap[1], '#a78bfa', clamp((t - capStart) / 0.3), 0, 0);
+  }
+
+  // ---------- outro ----------
+  function renderOutro(t) {
+    const a = easeOut(clamp(t / 0.6));
+    ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center';
+    pill(W / 2, 200, 'THE ONE RULE', '#4ade80', 'center');
+    ctx.textAlign = 'center';
+    ctx.font = `800 46px ${F}`; ctx.fillStyle = '#f8fafc';
+    ctx.fillText('Nothing skips a layer.', W / 2, 270);
+    ctx.restore();
+
+    const chain = [['Presentation', 'page'], ['Server Action', 'action'], ['Service', 'service'], ['Repository', 'repo'], ['MongoDB', 'db']];
+    const pw = 180, gap = 50, x0 = W / 2 - (chain.length * pw + (chain.length - 1) * gap) / 2, y = 370;
+    chain.forEach(([label, c], i) => {
+      const ca = easeOut(clamp((t - 0.4 - i * 0.15) / 0.4));
+      const col = C[c], x = x0 + i * (pw + gap);
+      const travel = ((t - 1.3) * 1.6) % chain.length;
+      const lit = t > 1.3 ? clamp(1 - Math.abs(travel - i) * 1.4) : 0;
+      ctx.save(); ctx.globalAlpha = ca;
+      if (lit) { ctx.shadowColor = col; ctx.shadowBlur = 26 * lit; }
+      rr(x, y - 30, pw, 60, 30);
+      ctx.fillStyle = '#0d1430'; ctx.fill(); ctx.shadowBlur = 0;
+      ctx.fillStyle = rgba(col, 0.14 + 0.2 * lit); ctx.fill();
+      ctx.strokeStyle = rgba(col, 0.6 + 0.4 * lit); ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = '#f1f5f9'; ctx.font = `700 16px ${F}`; ctx.textAlign = 'center'; ctx.fillText(label, x + pw / 2, y + 6);
+      if (i < chain.length - 1) {
+        ctx.strokeStyle = rgba(col, 0.7); ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(x + pw + 8, y); ctx.lineTo(x + pw + gap - 10, y); ctx.stroke();
+        arrowHead(x + pw + gap - 6, y, 0, C[chain[i + 1][1]], 0.9);
+      }
+      ctx.restore();
+    });
+
+    const sa = clamp((t - 1.2) / 0.5);
+    ctx.save(); ctx.globalAlpha = sa; ctx.textAlign = 'center';
+    ctx.font = `500 17px ${F}`; ctx.fillStyle = '#cbd5e1';
+    ctx.fillText('Session guard + Zod at every entry point  ·  audit log on every mutation  ·  revalidate on publish', W / 2, 470);
+    ctx.font = `500 13px ${M}`; ctx.fillStyle = '#64748b';
+    ctx.fillText('read more → docs/architecture.md  ·  docs/adr/', W / 2, 520);
+    ctx.restore();
+  }
+
+  // ---------- flow definitions (mirrors the real code paths) ----------
+  const READ = {
+    kind: 'flow', tag: 'FLOW 1 OF 4 · PUBLIC READ PATH', accent: C.client, step: 1.45,
+    title: 'Reader opens an episode',
+    subtitle: 'Server Components fetch published content straight from the repository — no internal API hop',
+    intro: { caption: 'A reader visits an episode page', file: 'GET /episodes/machine-learning-mein-data-ki-aukaat' },
+    outro: { caption: 'Story page delivered — drafts can never leak through this path', file: 'public repositories hard-filter status: "published" && publishedAt <= now' },
+    nodes: {
+      browser: { x: 140, y: 200, c: 'client', label: 'Reader browser', sub: 'GET /episodes/:slug' },
+      headers: { x: 395, y: 200, c: 'edge', label: 'next.config.mjs', sub: 'CSP · security headers' },
+      page: { x: 650, y: 200, c: 'page', label: 'Episode page.tsx', sub: 'Server Component' },
+      repo: { x: 905, y: 200, c: 'repo', label: 'episodes.repository', sub: 'findPublishedEpisodeBySlug' },
+      db: { x: 1140, y: 200, c: 'db', label: 'MongoDB', sub: 'episodes collection' },
+      model: { x: 1130, y: 410, w: 210, c: 'valid', label: 'content-block.model', sub: 'toPublicContentBlocks()' },
+      renderer: { x: 880, y: 410, w: 210, c: 'page', label: 'ContentBlockRenderer', sub: 'switch (block.type)' },
+      blocks: { x: 565, y: 430, w: 380, h: 150, c: 'page', kind: 'blocks', label: '18 typed block renderers',
+        chips: ['scene', 'dialogue', 'narration', 'flashback', 'concept', 'formula', 'code', 'example', 'table', 'image', 'banter', 'confusion', 'examTip', 'quiz', 'homework', 'summary', 'teaser', 'divider'] },
+      html: { x: 190, y: 430, w: 230, c: 'client', label: 'Rendered story page', sub: 'HTML + client islands' },
+    },
+    steps: [
+      { f: 'browser', t: 'headers', caption: 'Request reaches Next.js — security headers are attached to every response', file: 'next.config.mjs' },
+      { f: 'headers', t: 'page', caption: 'App Router resolves the (public) episode route', file: 'src/app/(public)/episodes/[episodeSlug]/page.tsx' },
+      { f: 'page', t: 'repo', caption: 'Server Component calls the repository directly — no fetch() to our own API', file: 'src/repositories/episodes.repository.ts' },
+      { f: 'repo', t: 'db', caption: 'Query hard-filters status "published" and publishedAt ≤ now', file: 'src/lib/db/mongodb.ts' },
+      { f: 'db', t: 'model', caption: 'Episode document returned — content blocks mapped to their public shape', file: 'src/models/content-block.model.ts' },
+      { f: 'model', t: 'renderer', caption: 'Ordered blocks handed to the discriminated-union renderer', file: 'src/components/episode/ContentBlockRenderer.tsx' },
+      { f: 'renderer', t: 'blocks', caption: 'One presentational component per block type — never a raw-HTML path', file: 'src/components/episode/blocks/*.tsx' },
+      { f: 'blocks', t: 'html', caption: 'Page streams with TOC, reading progress, quiz & audio player islands', file: 'TableOfContents · ReadingProgress · QuizBlock · EpisodeAudioPlayer' },
+    ],
+  };
+
+  const LOGIN = {
+    kind: 'flow', tag: 'FLOW 2 OF 4 · AUTHENTICATION', accent: C.auth, step: 1.4,
+    title: 'Admin signs in',
+    subtitle: 'Custom session service: Zod → rate limit → argon2 → signed JWT cookie (see docs/adr/0001)',
+    intro: { caption: 'An admin opens the CMS without a session', file: 'GET /admin/episodes' },
+    outro: { caption: 'Signed in — every admin page & action still re-verifies the session itself', file: 'requireAdminSession() / getAdminSessionOrNull()  ·  src/lib/auth/guards.ts' },
+    nodes: {
+      admin: { x: 140, y: 200, c: 'client', label: 'Admin browser', sub: '/admin/episodes' },
+      mw: { x: 395, y: 200, c: 'edge', label: 'middleware.ts', sub: 'no session cookie' },
+      login: { x: 650, y: 200, c: 'page', label: 'LoginForm', sub: '/admin/login?next=…' },
+      action: { x: 905, y: 200, c: 'action', label: 'loginAction', sub: 'features/auth/actions.ts' },
+      zod: { x: 1140, y: 200, c: 'valid', label: 'loginInputSchema', sub: 'Zod safeParse' },
+      authsvc: { x: 650, y: 390, w: 220, c: 'auth', label: 'authenticateAdmin', sub: 'auth.service.ts' },
+      cookie: { x: 270, y: 390, w: 230, c: 'auth', label: 'Session cookie', sub: 'httpOnly · safe redirect' },
+      rate: { x: 395, y: 560, c: 'auth', label: 'rate-limit.ts', sub: 'IP throttle · lockout' },
+      argon: { x: 650, y: 560, c: 'auth', label: 'password.ts', sub: 'argon2 verify' },
+      jwt: { x: 905, y: 560, c: 'auth', label: 'session-token.ts', sub: 'jose signed JWT' },
+      audit: { x: 1140, y: 560, c: 'repo', label: 'audit-logs.repository', sub: 'recordAuditLog' },
+    },
+    steps: [
+      { f: 'admin', t: 'mw', caption: 'Middleware sees no session cookie — a coarse UX redirect, not the security boundary', file: 'middleware.ts' },
+      { f: 'mw', t: 'login', caption: 'Redirected to the login page with ?next= preserved', file: 'src/app/(auth)/admin/login/page.tsx' },
+      { f: 'login', t: 'action', caption: 'Form posts straight to a Server Action', file: 'src/features/auth/actions.ts' },
+      { f: 'action', t: 'zod', caption: 'Email & password validated with Zod before anything else runs', file: 'src/models/admin.model.ts' },
+      { f: 'zod', t: 'authsvc', caption: 'authenticateAdmin(input, clientIp)', file: 'src/features/auth/auth.service.ts' },
+      { f: 'authsvc', t: 'rate', caption: 'IP rate limit and per-account lockout checked first', file: 'src/lib/auth/rate-limit.ts' },
+      { f: 'authsvc', t: 'argon', caption: 'Password verified with argon2 (@node-rs/argon2)', file: 'src/lib/auth/password.ts' },
+      { f: 'authsvc', t: 'jwt', caption: 'Session token signed with jose', file: 'src/lib/auth/session-token.ts' },
+      { f: 'authsvc', t: 'audit', caption: 'Success or failure is written to the audit log', file: 'src/repositories/audit-logs.repository.ts' },
+      { f: 'authsvc', t: 'cookie', caption: 'httpOnly cookie set; ?next= sanitised by getSafeRedirectPath()', file: 'src/lib/auth/cookies.ts · src/lib/security/safe-redirect.ts' },
+      { f: 'cookie', t: 'admin', caption: 'Redirected back to /admin/episodes — signed in ✓', file: 'redirect(target)' },
+    ],
+  };
+
+  const WRITE = {
+    kind: 'flow', tag: 'FLOW 3 OF 4 · WRITE PATH', accent: C.service, step: 1.4,
+    title: 'Admin publishes an episode',
+    subtitle: 'Server Action → session guard → service rules → repository → audit + targeted revalidation',
+    intro: { caption: 'Admin hits “Publish” in the episode editor', file: 'src/app/admin/episodes/[id]/edit/page.tsx  ·  EpisodeForm + BlockEditor' },
+    outro: { caption: 'Published — only the affected public pages were invalidated', file: 'expired session at any point → fail("Your session has expired. Please sign in again.")' },
+    nodes: {
+      form: { x: 140, y: 200, c: 'client', label: 'EpisodeForm', sub: 'BlockEditor · Publish ▸' },
+      mw: { x: 395, y: 200, c: 'edge', label: 'middleware.ts', sub: 'session cookie ✓' },
+      sa: { x: 650, y: 200, w: 210, c: 'action', label: 'publishEpisodeAction', sub: 'features/episodes/actions' },
+      guard: { x: 905, y: 200, w: 210, c: 'auth', label: 'getAdminSessionOrNull', sub: 'lib/auth/guards.ts' },
+      svc: { x: 905, y: 390, c: 'service', label: 'episode.service', sub: 'publishEpisode()' },
+      zod: { x: 1140, y: 390, c: 'valid', label: 'Zod + status rules', sub: 'episode.model.ts' },
+      repo: { x: 905, y: 560, c: 'repo', label: 'episodes.repository', sub: 'typed update' },
+      db: { x: 650, y: 560, c: 'db', label: 'MongoDB', sub: 'episodes' },
+      audit: { x: 1140, y: 560, c: 'service', label: 'audit.service', sub: 'logAdminAction()' },
+      reval: { x: 650, y: 390, c: 'cache', label: 'revalidate.ts', sub: 'revalidateEpisodePaths' },
+      public: { x: 330, y: 390, w: 240, c: 'page', label: 'Public pages refreshed', sub: '/ · /series/* · /episodes/*' },
+    },
+    steps: [
+      { f: 'form', t: 'mw', caption: 'Session cookie present — middleware lets the request through', file: 'middleware.ts' },
+      { f: 'mw', t: 'sa', caption: 'Client form invokes the Server Action', file: 'src/features/episodes/actions.ts' },
+      { f: 'sa', t: 'guard', caption: 'The action re-checks the session itself: verify JWT, load admin', file: 'src/lib/auth/guards.ts' },
+      { f: 'guard', t: 'svc', caption: 'Delegates to a plain, framework-agnostic service function', file: 'src/services/episode.service.ts' },
+      { f: 'svc', t: 'zod', caption: 'Input parsed with Zod; draft → scheduled → published transition enforced', file: 'src/models/episode.model.ts' },
+      { f: 'svc', t: 'repo', caption: 'Typed repository call — services never import the MongoDB driver', file: 'src/repositories/episodes.repository.ts' },
+      { f: 'repo', t: 'db', caption: 'Document written: status, publishedAt, revision bump', file: 'src/lib/db/mongodb.ts' },
+      { f: 'svc', t: 'audit', caption: 'Every admin mutation emits an audit-log entry', file: 'src/services/audit.service.ts' },
+      { f: 'svc', t: 'reval', caption: 'revalidatePath() for exactly the routes this episode touches', file: 'src/lib/seo/revalidate.ts' },
+      { f: 'reval', t: 'public', caption: 'Readers get the fresh page on their next request', file: 'src/app/(public)/…  ·  sitemap.ts' },
+    ],
+  };
+
+  const AUDIO = {
+    kind: 'flow', tag: 'FLOW 4 OF 4 · AUDIO PIPELINE', accent: C.script, step: 1.4,
+    title: 'Episode audio: script → speakers',
+    subtitle: 'Generated offline with Python TTS, stored in GridFS, streamed with HTTP Range support',
+    intro: { caption: 'Start from the episode’s dialogue script', file: 'scripts/tts/  ·  episode script (Devanagari)' },
+    outro: { caption: 'Seekable, cache-friendly audio served straight from MongoDB', file: 'Accept-Ranges: bytes  ·  Cache-Control: public, max-age=31536000, immutable' },
+    nodes: {
+      script: { x: 140, y: 200, c: 'script', label: 'Episode script', sub: 'Devanagari .txt' },
+      py: { x: 395, y: 200, c: 'script', label: 'TTS generator', sub: 'edge-tts · hi-IN voices' },
+      mp3: { x: 650, y: 200, c: 'script', label: 'episode.mp3', sub: 'stitched with pydub' },
+      attach: { x: 905, y: 200, w: 210, c: 'script', label: 'attach-episode-audio', sub: 'npm run audio:attach' },
+      gridfs: { x: 1140, y: 390, c: 'db', label: 'MongoDB GridFS', sub: 'audio bucket' },
+      epdoc: { x: 650, y: 390, w: 230, c: 'db', label: 'Episode document', sub: 'audio.url = /api/audio/:id' },
+      player: { x: 395, y: 560, c: 'page', label: 'EpisodeAudioPlayer', sub: '<audio> element' },
+      route: { x: 905, y: 560, c: 'action', label: 'api/audio/[id]', sub: 'route.ts · Range' },
+    },
+    steps: [
+      { f: 'script', t: 'py', caption: 'Each line voiced per character — Shyam & Salim differ by rate and pitch', file: 'scripts/tts/generate_episode_audio_edge.py' },
+      { f: 'py', t: 'mp3', caption: 'Clips stitched into one track (Parler & Google TTS variants also exist)', file: 'scripts/tts/generate_episode_audio{,_edge,_google}.py' },
+      { f: 'mp3', t: 'attach', caption: 'Upload script run locally with the episode slug', file: 'scripts/attach-episode-audio.ts' },
+      { f: 'attach', t: 'gridfs', caption: 'uploadEpisodeAudio() streams the file into GridFS', file: 'src/repositories/audio.repository.ts' },
+      { f: 'attach', t: 'epdoc', caption: 'Episode’s audio.url pointed at the stored file', file: 'episodes collection' },
+      { f: 'epdoc', t: 'player', caption: 'Episode page renders the audio player', file: 'src/components/episode/EpisodeAudioPlayer.tsx' },
+      { f: 'player', t: 'route', caption: 'Browser requests audio with an HTTP Range header', file: 'src/app/api/audio/[id]/route.ts' },
+      { f: 'route', t: 'gridfs', caption: 'openEpisodeAudioStream(id, { start, end })', file: 'src/repositories/audio.repository.ts' },
+      { f: 'gridfs', t: 'route', caption: 'Requested byte range streamed back from GridFS chunks', file: 'Readable.toWeb(nodeStream)' },
+      { f: 'route', t: 'player', caption: '206 Partial Content → instant seeking & playback ▶', file: 'Content-Range: bytes start-end/total' },
+    ],
+  };
+
+  // ---------- timeline ----------
+  const flowDur = (sc) => FLOW_START + sc.steps.length * sc.step + HOLD;
+  const SCENES = [
+    { name: 'intro', dur: 4.2, render: renderIntro },
+    { name: 'overview', dur: 9.4, render: renderOverview },
+    { name: 'read', dur: flowDur(READ), render: (t) => renderFlow(READ, t) },
+    { name: 'login', dur: flowDur(LOGIN), render: (t) => renderFlow(LOGIN, t) },
+    { name: 'write', dur: flowDur(WRITE), render: (t) => renderFlow(WRITE, t) },
+    { name: 'audio', dur: flowDur(AUDIO), render: (t) => renderFlow(AUDIO, t) },
+    { name: 'outro', dur: 5.0, render: renderOutro },
+  ];
+  let acc = 0;
+  for (const s of SCENES) { s.start = acc; acc += s.dur; }
+  const TOTAL = acc;
+  const FADE = 0.4;
+
+  function renderAt(time) {
+    const t = ((time % TOTAL) + TOTAL) % TOTAL;
+    const sc = SCENES.find((s) => t >= s.start && t < s.start + s.dur) || SCENES[SCENES.length - 1];
+    const lt = t - sc.start;
+    ctx.clearRect(0, 0, W, H);
+    sc.render(lt);
+    const alpha = Math.min(clamp(lt / FADE), clamp((sc.dur - lt) / FADE));
+    out.drawImage(bg, 0, 0);
+    out.globalAlpha = alpha;
+    out.drawImage(layer, 0, 0);
+    out.globalAlpha = 1;
+    // progress bar across the whole tour
+    out.fillStyle = 'rgba(148,163,184,0.12)'; out.fillRect(0, H - 3, W, 3);
+    const pg = out.createLinearGradient(0, 0, W, 0);
+    pg.addColorStop(0, '#22d3ee'); pg.addColorStop(0.5, '#a78bfa'); pg.addColorStop(1, '#f472b6');
+    out.fillStyle = pg; out.fillRect(0, H - 3, W * (t / TOTAL), 3);
+  }
+
+  window.renderAt = renderAt;
+  window.TOTAL = TOTAL;
+  window.SCENES = SCENES.map(({ name, start, dur }) => ({ name, start, dur }));
+
+  // ---------- live playback (skipped during frame capture) ----------
+  if (!window.__CAPTURE) {
+    let offset = 0, last = null, paused = false;
+    const loop = (now) => {
+      if (last !== null && !paused) offset += (now - last) / 1000;
+      last = now;
+      renderAt(offset);
+      requestAnimationFrame(loop);
+    };
+    const jump = (dir) => {
+      const t = ((offset % TOTAL) + TOTAL) % TOTAL;
+      const i = SCENES.findIndex((s) => t >= s.start && t < s.start + s.dur);
+      const j = (i + dir + SCENES.length) % SCENES.length;
+      offset = SCENES[j].start + 0.001;
+    };
+    addEventListener('keydown', (e) => {
+      if (e.code === 'Space') { paused = !paused; e.preventDefault(); }
+      if (e.code === 'ArrowRight') jump(1);
+      if (e.code === 'ArrowLeft') jump(-1);
+    });
+    document.fonts.ready.then(() => requestAnimationFrame(loop));
+  }
+})();
+</script>
+</body>
+</html>

@@ -1837,6 +1837,553 @@ const episode3ContentBlocks: ContentBlock[] = [
 ];
 
 /**
+ * Episode 4 — "Kachra Saaf Karo: Missing Values Aur Outliers Ka Ilaaj". Salim
+ * teaches at the boundary wall of the mohalla cricket ground: missing-value
+ * imputation, duplicates / inconsistent data, and outlier detection (IQR,
+ * 3-sigma with the "masking" gotcha, LOF, Isolation Forest). All numbers
+ * (Raju's mean 26.6, sigma ~40.3, upper limit ~147.6; the 12-value IQR
+ * exam example Q1 = 11, Q3 = 14.5) were verified by computation.
+ */
+const episode4ContentBlocks: ContentBlock[] = [
+  {
+    id: 's4-scene-cricket-ground',
+    type: 'scene',
+    order: 0,
+    sceneTitle: 'Mohalle Ka Cricket Ground',
+    location: 'Mohalle ka cricket ground, boundary ki tooti hui deewar',
+    time: 'Sunday, 9:30 AM',
+    sessionLabel: 'Module 2 · Episode 4',
+    backgroundTheme: 'neutral',
+    ambientDescription:
+      'Ground pe bachche match khel rahe hain. Dono deewar pe baithe hain, haath mein Chhotu ki tapri ki cutting chai. Wahi ground, wahi naali, jahan se Salim kabhi gend nikalta tha. Aaj class Salim ki hai, aur wo ise bhoolne nahi dega.',
+    transitionStyle: 'fade',
+  },
+  {
+    id: 's4-dialogue-opening',
+    type: 'dialogue',
+    order: 1,
+    lines: [
+      {
+        id: 'e4d1',
+        speaker: 'salim',
+        text: 'To beta Shyam, aaj class kiski hai?',
+        stageDirection: 'marker ghumate hue',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e4d2', speaker: 'shyam', text: 'Teri.', emphasis: 'none', displayOrder: 1 },
+      { id: 'e4d3', speaker: 'salim', text: 'Zor se bol.', emphasis: 'none', displayOrder: 2 },
+      { id: 'e4d4', speaker: 'shyam', text: 'Teri, Salim Sir.', emphasis: 'none', displayOrder: 3 },
+      { id: 'e4d5', speaker: 'salim', text: 'Haan. Ab maza aaya.', emphasis: 'bold', displayOrder: 4 },
+      {
+        id: 'e4d6',
+        speaker: 'shyam',
+        text: 'Pichhle hafte maine teri diary padh li thi, uska badla le raha hai na?',
+        emphasis: 'none',
+        displayOrder: 5,
+      },
+      { id: 'e4d7', speaker: 'salim', text: 'Badla nahi. Education.', emphasis: 'none', displayOrder: 6 },
+    ],
+  },
+  {
+    id: 's4-dialogue-recap-500',
+    type: 'dialogue',
+    order: 2,
+    lines: [
+      {
+        id: 'e4d8',
+        speaker: 'salim',
+        text: 'Pichhle Sunday tune kachra dikhaya tha: missing values, duplicates, inconsistent data, noise, outliers. Aaj main batata hoon ki is kachre ko saaf kaise karte hain.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e4d9', speaker: 'shyam', text: 'Aur mere ₹500?', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e4d10',
+        speaker: 'salim',
+        text: 'Wahin se shuru karte hain. Tere ₹500 ek missing value hain.',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      { id: 'e4d11', speaker: 'shyam', text: 'To bhar.', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e4d12',
+        speaker: 'salim',
+        text: 'Pehla tareeka hai drop kar do. Row hi delete.',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      { id: 'e4d13', speaker: 'shyam', text: 'Abe ye handling hai ya chori?', emphasis: 'none', displayOrder: 5 },
+      {
+        id: 'e4d14',
+        speaker: 'salim',
+        text: 'Dono. Multitasking. Teri hi line hai, yaad hai?',
+        emphasis: 'none',
+        displayOrder: 6,
+      },
+    ],
+  },
+  {
+    id: 's4-divider-missing',
+    type: 'divider',
+    order: 3,
+    style: 'scene-break',
+    label: '1️⃣ Missing Values Ka Ilaaj',
+  },
+  {
+    id: 's4-table-missing-methods',
+    type: 'table',
+    order: 4,
+    caption: 'Missing values handle karne ke tareeke',
+    columns: ['Tareeka', 'Kab use karein', 'Dhyan kahan dena hai'],
+    rows: [
+      ['Drop rows', 'Bahut kam rows mein value missing ho', 'Zyada rows gayi to data hi khatam'],
+      ['Drop column', 'Column ka bada hissa khaali ho (jaise 70–80% blank)', 'Important feature ho to soch ke drop karo'],
+      ['Mean se bharo', 'Numerical data, bina outliers ke', 'Outliers mean ko kheench lete hain'],
+      ['Median se bharo', 'Numerical data, jab outliers hon', 'Usually safer default'],
+      ['Mode se bharo', 'Categorical data (blood group, city)', 'Sabse common value bhar do'],
+      ['"Unknown" flag', 'Koi bharosemand andaaza na ho', 'Galat value bharne se ye behtar hai'],
+      ['Synthetic data', 'Baaki columns se model andaaza lagaye', 'Jaise KNN-based imputation'],
+    ],
+  },
+  {
+    id: 's4-flashback-chanda',
+    type: 'flashback',
+    order: 5,
+    title: 'Mohalla Tournament Ka Chanda',
+    dateBadge: '2013',
+    bodyMarkdown:
+      'Tournament ke liye chanda jama hua tha. Bachchon ne ₹100, ₹150, ₹200 diye the. Phir Sharma Uncle aaye, ₹5,000 diye, aur poore mohalle ko announce bhi kiya.',
+    lines: [
+      {
+        id: 'e4f1',
+        speaker: 'shyam',
+        text: 'Aur ek bande ke aage likha hi nahi tha ki usne kitna diya.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e4f2', speaker: 'salim', text: 'Wahi aaj ka example hai.', emphasis: 'none', displayOrder: 1 },
+    ],
+    entryAnimation: 'page-turn',
+  },
+  {
+    id: 's4-formula-mean-vs-median',
+    type: 'formula',
+    order: 6,
+    title: 'Salim\'s Blackboard: Mean vs Median',
+    formula: 'Mean = (sum of values) / n ;  Median = beech ki value (ya beech ki do values ka average)',
+    variables: [{ symbol: 'n', meaning: 'Known values ki ginti (missing ko chhodkar)' }],
+    stepByStepExplanation: [
+      'Chanda ki list (ek value missing): ₹100, ₹100, ₹150, ₹200, ₹100, ₹5000, ?',
+      'Mean = (100 + 100 + 150 + 200 + 100 + 5000) / 6 = 5650 / 6 ≈ ₹942',
+      'Values ko line mein lagao: 100, 100, 100, 150, 200, 5000. Beech ki do values hain 100 aur 150.',
+      'Median = (100 + 150) / 2 = ₹125',
+    ],
+    numericalExample: 'Mean ≈ ₹942 (Sharma Uncle ke ₹5,000 ne kheench liya), Median = ₹125 (bachchon ka asli chanda).',
+    allowCopy: true,
+  },
+  {
+    id: 's4-dialogue-mean-median',
+    type: 'dialogue',
+    order: 7,
+    lines: [
+      {
+        id: 'e4d15',
+        speaker: 'shyam',
+        text: 'Ek bachche ne ₹942 diye? Uski pocket money to ₹50 thi!',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      {
+        id: 'e4d16',
+        speaker: 'salim',
+        text: 'Bas. Sharma Uncle ke ₹5,000 ne average ko apni taraf kheench liya. Median sirf beech wala number dekhta hai, isliye ek bada number use bigaad nahi paata.',
+        emphasis: 'bold',
+        displayOrder: 1,
+      },
+      { id: 'e4d17', speaker: 'shyam', text: 'Matlab outliers hon to median.', emphasis: 'none', displayOrder: 2 },
+      {
+        id: 'e4d18',
+        speaker: 'salim',
+        text: 'Aur blood group jaise category ke liye na mean chalega na median. Wahan mode, yaani jo sabse zyada baar aaya.',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      { id: 'e4d19', speaker: 'shyam', text: 'Aur agar koi andaaza hi na ho?', emphasis: 'none', displayOrder: 4 },
+      {
+        id: 'e4d20',
+        speaker: 'salim',
+        text: 'To seedha "Unknown" likh do. Jhooth bharne se imaandaar "Unknown" behtar hai.',
+        emphasis: 'none',
+        displayOrder: 5,
+      },
+    ],
+  },
+  {
+    id: 's4-divider-duplicates',
+    type: 'divider',
+    order: 8,
+    style: 'scene-break',
+    label: '2️⃣ Duplicates Aur Inconsistent Data',
+  },
+  {
+    id: 's4-dialogue-duplicates',
+    type: 'dialogue',
+    order: 9,
+    lines: [
+      { id: 'e4d21', speaker: 'shyam', text: 'Aur tere teen Salim?', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e4d22',
+        speaker: 'salim',
+        text: 'Haan haan. Email ya phone jaisi unique cheez se pehchano ki ek hi banda hai, aur ek hi record rakho.',
+        stageDirection: 'chidhkar',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      { id: 'e4d23', speaker: 'shyam', text: 'Aur y, Yes, YES, yes?', emphasis: 'none', displayOrder: 2 },
+      {
+        id: 'e4d24',
+        speaker: 'salim',
+        text: 'Sabko ek format mein badal do, jaise "Yes". Dates ko ek format mein (YYYY-MM-DD), units ko ek mein (sab kg). Aur "AI" aur "Artificial Intelligence" ko ek naam do.',
+        emphasis: 'bold',
+        displayOrder: 3,
+      },
+    ],
+  },
+  {
+    id: 's4-divider-outliers',
+    type: 'divider',
+    order: 10,
+    style: 'scene-break',
+    label: '3️⃣ Outlier Detection: Raju Ka Postmortem',
+  },
+  {
+    id: 's4-dialogue-raju-postmortem',
+    type: 'dialogue',
+    order: 11,
+    lines: [
+      { id: 'e4d25', speaker: 'salim', text: 'Ab asli kaam. Raju ka postmortem.', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e4d26',
+        speaker: 'shyam',
+        text: 'Bechara Raju. Usne bas 147 maare the.',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      {
+        id: 'e4d27',
+        speaker: 'salim',
+        text: 'Aur aaj maths batayega ki wo kitna "alag" tha.',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+    ],
+  },
+  {
+    id: 's4-formula-iqr',
+    type: 'formula',
+    order: 12,
+    title: 'Salim\'s Blackboard: IQR Method',
+    formula: 'IQR = Q_3 - Q_1 ;  Lower = Q_1 - 1.5 * IQR ;  Upper = Q_3 + 1.5 * IQR',
+    variables: [
+      { symbol: 'Q_1', meaning: '25% data isse neeche hai' },
+      { symbol: 'Q_3', meaning: '75% data isse neeche hai' },
+      { symbol: 'IQR', meaning: 'Beech ke 50% data ka spread' },
+    ],
+    stepByStepExplanation: [
+      '2012 ke match ke 10 scores, sort karke: 8, 9, 10, 11, 12, 14, 15, 18, 22, 147',
+      'Step 1: Data ko do halves mein todo. Neeche ka half: 8, 9, 10, 11, 12 → Q1 = 10. Upar ka half: 14, 15, 18, 22, 147 → Q3 = 18.',
+      'Step 2: IQR = Q3 − Q1 = 18 − 10 = 8',
+      'Step 3: Lower bound = 10 − 1.5 × 8 = −2. Upper bound = 18 + 1.5 × 8 = 30.',
+      'Step 4: Jo value range ke bahar hai, wo outlier. 147 > 30 → Raju officially outlier hai. ✅',
+    ],
+    numericalExample: 'Range −2 se 30. Raju ke 147 runs 30 se bahut upar hain, isliye outlier.',
+    allowCopy: true,
+  },
+  {
+    id: 's4-banter-postmortem',
+    type: 'banter',
+    order: 13,
+    speaker: 'salim',
+    text: 'Postmortem complete. Raju officially outlier hai. (Shyam: Raju ko pata chala to tujhe naali mein phenk dega. Salim: Main wahan pehle bhi reh chuka hoon. Comfortable hoon.)',
+    reactionEmoji: '😂',
+  },
+  {
+    id: 's4-table-three-sigma',
+    type: 'table',
+    order: 14,
+    caption: 'Salim\'s Blackboard: 3-Sigma Rule (normal distribution / bell curve)',
+    columns: ['Range', 'Kitna data aata hai'],
+    rows: [
+      ['μ ± 1σ', '~68%'],
+      ['μ ± 2σ', '~95%'],
+      ['μ ± 3σ', '~99.7%'],
+    ],
+    note: 'Rule: jo value μ − 3σ se neeche ya μ + 3σ se upar hai, use outlier maano.',
+  },
+  {
+    id: 's4-example-chhotu-tapri',
+    type: 'example',
+    order: 15,
+    title: 'Chhotu Ki Tapri: 3-Sigma in Action',
+    scenario: 'Chhotu ki tapri pe roz average 200 chai bikti hai (μ = 200), σ = 20.',
+    walkthroughMarkdown:
+      'Normal range = 200 ± 3(20) = **140 se 260**. India–Pakistan match wale din 320 cup bike. 320 > 260, isliye wo din outlier hai.',
+    outcome: 'Outlier hai, galat nahi: match ka din real tha.',
+  },
+  {
+    id: 's4-dialogue-masking',
+    type: 'dialogue',
+    order: 16,
+    lines: [
+      {
+        id: 'e4d28',
+        speaker: 'shyam',
+        text: 'To Raju ko bhi 3-sigma se pakad lete hain.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e4d29', speaker: 'salim', text: 'Koshish kar.', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e4d30',
+        speaker: 'shyam',
+        text: 'Mean = 26.6, σ ≈ 40.3. Upper limit = 26.6 + 3 × 40.3 ≈ 147.6...',
+        stageDirection: 'calculator dabate hue',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      {
+        id: 'e4d31',
+        speaker: 'shyam',
+        text: 'Abe! 147 to andar aa gaya!',
+        reaction: 'shock',
+        emphasis: 'bold',
+        displayOrder: 3,
+      },
+      {
+        id: 'e4d32',
+        speaker: 'salim',
+        text: 'Raju 3-sigma se bach nikla. 😄',
+        emphasis: 'highlight',
+        conceptRef: 'masking',
+        displayOrder: 4,
+      },
+    ],
+  },
+  {
+    id: 's4-concept-masking',
+    type: 'concept',
+    order: 17,
+    conceptName: 'Masking',
+    anchorId: 'masking',
+    simpleDefinition: 'Outlier itna bada hota hai ki wo khud mean aur σ ko bada kar deta hai, aur apne aap ko chhupa leta hai.',
+    technicalDefinition:
+      'A failure mode of mean/standard-deviation based detectors (like the 3-sigma rule): an extreme value inflates both the mean and σ, widening the acceptance range enough that the outlier itself falls inside it. Robust statistics (median, quartiles, as in IQR) are not distorted this way.',
+    realWorldExample:
+      'Raju ke 147 ne mean ko 26.6 aur σ ko ≈ 40.3 kar diya, to upper limit ≈ 147.6 ho gayi aur 147 "normal" nikla. IQR (upper bound 30) ne use aaram se pakad liya.',
+    relatedTerms: ['3-sigma rule', 'IQR', 'robust statistics'],
+    bookmarkable: true,
+  },
+  {
+    id: 's4-confusion-iqr-vs-sigma',
+    type: 'confusion',
+    order: 18,
+    misconception: '3-sigma rule aur IQR dono hamesha same outliers pakadte hain, bas formula alag hai.',
+    clarification:
+      'IQR median aur quartiles pe chalta hai, isliye ek bada number use bewakoof nahi bana pata. 3-sigma mean aur standard deviation pe chalta hai, jo khud outliers se bigad jaate hain (masking). 3-sigma tab achha kaam karta hai jab data bada ho aur lagbhag bell curve jaisa ho.',
+    relatedConceptRef: 'masking',
+  },
+  {
+    id: 's4-divider-lof-iforest',
+    type: 'divider',
+    order: 19,
+    style: 'scene-break',
+    label: '4️⃣ LOF Aur Isolation Forest',
+  },
+  {
+    id: 's4-dialogue-lof-iforest',
+    type: 'dialogue',
+    order: 20,
+    lines: [
+      { id: 'e4d33', speaker: 'shyam', text: 'Aur ye LOF aur Isolation Forest kya hain?', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e4d34',
+        speaker: 'salim',
+        text: 'LOF, yaani Local Outlier Factor. Soch, mohalle mein saare ghar paas-paas hain, aur ek ghar khet ke beech akela khada hai.',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      { id: 'e4d35', speaker: 'shyam', text: 'Verma ji ka ghar.', emphasis: 'none', displayOrder: 2 },
+      {
+        id: 'e4d36',
+        speaker: 'salim',
+        text: 'Bilkul. LOF dekhta hai ki kisi point ke aas-paas kitni bheed hai, uske padosiyon ke mukable. Agar uske aas-paas bheed bahut kam hai, to wo outlier.',
+        conceptRef: 'lof',
+        emphasis: 'bold',
+        displayOrder: 3,
+      },
+      { id: 'e4d37', speaker: 'shyam', text: 'Aur Isolation Forest?', emphasis: 'none', displayOrder: 4 },
+      {
+        id: 'e4d38',
+        speaker: 'salim',
+        text: '20 sawaal wala game yaad hai? Mohalle ke kisi aam ladke ko pehchanne mein bahut sawaal lagte hain.',
+        emphasis: 'none',
+        displayOrder: 5,
+      },
+      { id: 'e4d39', speaker: 'shyam', text: 'Aur Raju ko?', emphasis: 'none', displayOrder: 6 },
+      {
+        id: 'e4d40',
+        speaker: 'salim',
+        text: 'Ek hi sawaal. "Jisne 147 maare?" Raju!',
+        emphasis: 'highlight',
+        displayOrder: 7,
+      },
+    ],
+  },
+  {
+    id: 's4-table-outlier-methods',
+    type: 'table',
+    order: 21,
+    caption: 'Outlier detection methods ek nazar mein',
+    columns: ['Method', 'Idea', 'Kab use karein'],
+    rows: [
+      ['IQR', 'Q1 aur Q3 se range, uske bahar outlier', 'Chhota data, skewed data, robust default'],
+      ['3-sigma', 'Mean se 3σ se door, outlier', 'Bada, lagbhag normal data'],
+      ['LOF', 'Neighbourhood ki density compare karo', 'Clusters wala data, local outliers'],
+      ['Isolation Forest', 'Random splits se jo jaldi alag ho jaye, wo outlier', 'Bada, high-dimensional data'],
+    ],
+  },
+  {
+    id: 's4-examtip-verify-before-delete',
+    type: 'examTip',
+    order: 22,
+    tip: 'Outlier pakadna aur delete karna alag cheezein hain. Pehle check karo ki wo galti hai ya asli. Raju asli tha.',
+    importance: 'high',
+  },
+  {
+    id: 's4-example-iqr-exam',
+    type: 'example',
+    order: 23,
+    title: 'Exam-style question: IQR method se outliers dhoondo',
+    scenario: 'Data: 10, 2, 11, 15, 11, 14, 13, 17, 12, 22, 14, 11. IQR method se outliers dhoondo.',
+    walkthroughMarkdown:
+      'Sorted (n = 12): 2, 10, 11, 11, 11, 12, 13, 14, 14, 15, 17, 22. Lower half: 2, 10, 11, 11, 11, 12 → Q1 = (11 + 11)/2 = **11**. Median = (12 + 13)/2 = 12.5. Upper half: 13, 14, 14, 15, 17, 22 → Q3 = (14 + 15)/2 = **14.5**. IQR = 14.5 − 11 = **3.5**. Lower bound = 11 − 1.5(3.5) = **5.75**. Upper bound = 14.5 + 1.5(3.5) = **19.75**.',
+    outcome:
+      'Outliers: 2 aur 22. Note: quartile nikalne ke alag-alag methods hain, aur kuch thode alag Q1/Q3 dete hain. Jaise (n + 1) wala method Q3 = 14.75 deta hai. Is example mein dono methods se outliers same aate hain. Exam mein jo method use karo, likh do.',
+  },
+  {
+    id: 's4-summary-recap',
+    type: 'summary',
+    order: 24,
+    title: 'Aaj Salim Ne Shyam Ko Kya Sikhaya?',
+    points: [
+      'Missing values: thodi hon to drop, warna bharo. Numbers mein outliers hon to median, warna mean. Categories mein mode. Andaaza na ho to "Unknown".',
+      'Duplicates: unique key se pehchano, ek record rakho.',
+      'Inconsistent data: categories, dates aur units ko ek standard format mein lao.',
+      'IQR: Q1 − 1.5×IQR se Q3 + 1.5×IQR ke bahar ki values outlier hain.',
+      '3-sigma: normal data mein μ ± 3σ ke bahar outlier. Bade outliers mean aur σ ko bigaad ke khud chhup sakte hain (masking).',
+      'LOF aur Isolation Forest: bade aur complex data ke liye. LOF density dekhta hai, Isolation Forest dekhta hai ki point kitni jaldi alag ho jaata hai.',
+      'Outlier mile to pehle verify karo, phir decide karo.',
+    ],
+  },
+  {
+    id: 's4-quiz-episode-4',
+    type: 'quiz',
+    order: 25,
+    title: 'Chai Break Quiz ☕',
+    questions: [
+      {
+        id: 'e4q1',
+        questionType: 'multiple-choice',
+        prompt:
+          'Ek company ke salary column mein kuch values missing hain, aur CEO ki salary baaki sab se bahut zyada hai. Mean se bharoge ya median se?',
+        options: [
+          { id: 'a', text: 'Mean se' },
+          { id: 'b', text: 'Median se' },
+        ],
+        correctOptionId: 'b',
+        explanation: 'Median. CEO ki salary mean ko upar kheench legi, median pe uska asar nahi padta.',
+      },
+      {
+        id: 'e4q2',
+        questionType: 'true-false',
+        prompt: 'Q1 = 20, Q3 = 40. Kya 75 outlier hai?',
+        correctAnswer: true,
+        explanation: 'Haan. IQR = 20, upper bound = 40 + 1.5 × 20 = 70. 75 > 70.',
+      },
+      {
+        id: 'e4q3',
+        questionType: 'true-false',
+        prompt: 'μ = 50, σ = 5, data normal hai. Kya 68 outlier hai?',
+        correctAnswer: true,
+        explanation: 'Haan. 3-sigma range 35 se 65 hai, aur 68 usse bahar hai.',
+      },
+      {
+        id: 'e4q4',
+        questionType: 'short-answer',
+        prompt: '"Favourite colour" column mein missing values hain. Kaise bharoge?',
+        acceptableAnswers: ['mode', 'unknown', 'most common', 'most frequent'],
+        explanation:
+          'Mode se, yaani sabse common colour se. Ya agar andaaza na ho to "Unknown" likho. Mean ya median categorical data pe meaningful nahi hain.',
+      },
+    ],
+  },
+  {
+    id: 's4-homework-episode-4',
+    type: 'homework',
+    order: 26,
+    dueLabel: 'Comments mein batao',
+    difficulty: 'medium',
+    tasks: [
+      'Pichhle 10 din ka apna screen time (ghanton mein) likho.',
+      'IQR method se check karo ki koi din outlier hai ya nahi.',
+      'Comments mein batao: kaunsa din outlier nikla, aur us din kya hua tha? 😄',
+    ],
+  },
+  {
+    id: 's4-dialogue-teaser-banter',
+    type: 'dialogue',
+    order: 27,
+    lines: [
+      { id: 'e4d41', speaker: 'shyam', text: 'Agli baar class meri.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e4d42', speaker: 'salim', text: 'Kya padhayega?', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e4d43',
+        speaker: 'shyam',
+        text: 'Data saaf to ho gaya, lekin abhi bhi kachcha hai. Agle Sunday data ko pakayenge. Smoothing, aggregation, discretization, aur scaling.',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      { id: 'e4d44', speaker: 'salim', text: 'Data pakayenge?', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e4d45',
+        speaker: 'shyam',
+        text: 'Haan. Aur teri salary aur meri age ko ek hi taraazu pe taulenge.',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      { id: 'e4d46', speaker: 'salim', text: 'Aur tere ₹500?', emphasis: 'none', displayOrder: 5 },
+      {
+        id: 'e4d47',
+        speaker: 'shyam',
+        text: 'Maine median se bhar diye. Ab tu mujhe ₹125 deta hai.',
+        emphasis: 'bold',
+        displayOrder: 6,
+      },
+      { id: 'e4d48', speaker: 'salim', text: 'Ye kaunsa maths hai!', emphasis: 'none', displayOrder: 7 },
+    ],
+  },
+  {
+    id: 's4-teaser-next-episode',
+    type: 'teaser',
+    order: 28,
+    nextEpisodeTitle: 'Data Ki Rasoi: Smoothing, Aggregation Aur Scaling',
+    teaserText:
+      'Agle Sunday: Shyam padhayega smoothing, aggregation, discretization, attribute construction aur scaling. Data ko pakane ka waqt aa gaya hai.',
+  },
+];
+
+/**
  * Episode 3's full multi-voice audio-drama script. Rewritten in a more
  * natural, contraction-heavy register for two Indian men in their
  * mid-twenties — quick back-and-forth, trailing sentences, laughter
@@ -1971,6 +2518,13 @@ async function seed(): Promise<void> {
   if (!parsedEpisode3Audio.success) {
     console.error('Episode 3 audio script failed validation:');
     console.error(parsedEpisode3Audio.error.format());
+    process.exit(1);
+  }
+
+  const parsedEpisode4 = contentBlocksSchema.safeParse(episode4ContentBlocks);
+  if (!parsedEpisode4.success) {
+    console.error('Episode 4 seed content blocks failed validation:');
+    console.error(parsedEpisode4.error.format());
     process.exit(1);
   }
 
@@ -2166,12 +2720,58 @@ async function seed(): Promise<void> {
     { upsert: true, returnDocument: 'after' },
   );
 
+  const episode4Slug = toSlug('Kachra Saaf Karo Missing Values Aur Outliers Ka Ilaaj');
+  const readingTime4 = calculateReadingTime(parsedEpisode4.data);
+
+  await db.collection<Omit<EpisodeDocument, '_id'>>(COLLECTIONS.EPISODES).findOneAndUpdate(
+    { slug: episode4Slug },
+    {
+      $set: {
+        seriesId,
+        moduleId,
+        seriesSlug,
+        seriesTitle: series.title,
+        moduleSlug,
+        moduleTitle: moduleDoc.title,
+        title: 'Kachra Saaf Karo: Missing Values Aur Outliers Ka Ilaaj',
+        subtitle: 'Chautha Sunday: Missing values, duplicates, inconsistent data aur outlier detection (IQR, 3-sigma, LOF, Isolation Forest)',
+        episodeNumber: 4,
+        teacherCharacter: 'salim',
+        studentCharacter: 'shyam',
+        excerpt:
+          'Mohalle ke cricket ground ki tooti deewar pe, cutting chai ke saath, Salim apna badla leta hai aur Shyam ko sikhata hai ki missing values kaise bharte hain aur Raju ke 147 runs ka maths se postmortem kaise hota hai.',
+        location: 'Mohalle ka cricket ground, boundary ki tooti hui deewar',
+        // 9:30 AM IST on Sunday 2026-03-01.
+        sessionDate: new Date('2026-03-01T04:00:00.000Z'),
+        readingTime: readingTime4,
+        contentBlocks: parsedEpisode4.data,
+        tags: ['data', 'data-cleaning', 'missing-values', 'outliers'],
+        concepts: ['missing-values', 'imputation', 'iqr', 'three-sigma-rule', 'masking', 'lof', 'isolation-forest'],
+        status: 'published',
+        publishedAt: new Date('2026-03-01T04:00:00.000Z'),
+        featured: false,
+        seo: {
+          metaTitle: 'Kachra Saaf Karo: Missing Values Aur Outliers Ka Ilaaj',
+          metaDescription:
+            'Salim aur Shyam samjhate hain missing values ka ilaaj, duplicates, inconsistent data, aur outlier detection IQR, 3-sigma, LOF aur Isolation Forest se.',
+          noIndex: false,
+        },
+        createdBy: SEED_ACTOR,
+        updatedBy: SEED_ACTOR,
+      },
+      $setOnInsert: { createdAt: now, revision: 1 },
+      $currentDate: { updatedAt: true },
+    },
+    { upsert: true, returnDocument: 'after' },
+  );
+
   console.warn('Seed complete:');
   console.warn(`  series:    /series/${seriesSlug}`);
   console.warn(`  module:    /series/${seriesSlug}/module/${moduleSlug}`);
   console.warn(`  episode 1: /episodes/${episodeSlug}`);
   console.warn(`  episode 2: /episodes/${episode2Slug}`);
   console.warn(`  episode 3: /episodes/${episode3Slug} (audio not attached yet)`);
+  console.warn(`  episode 4: /episodes/${episode4Slug}`);
 }
 
 seed()
