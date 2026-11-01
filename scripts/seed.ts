@@ -2378,8 +2378,663 @@ const episode4ContentBlocks: ContentBlock[] = [
     type: 'teaser',
     order: 28,
     nextEpisodeTitle: 'Data Ki Rasoi: Smoothing, Aggregation Aur Scaling',
+    nextEpisodeSlug: toSlug('Data Ki Rasoi Smoothing Aggregation Aur Scaling'),
     teaserText:
       'Agle Sunday: Shyam padhayega smoothing, aggregation, discretization, attribute construction aur scaling. Data ko pakane ka waqt aa gaya hai.',
+  },
+];
+
+/**
+ * Episode 5 — "Data Ki Rasoi: Smoothing, Aggregation Aur Scaling". Shyam
+ * teaches in his kitchen while aunty makes rajma: data transformation
+ * (smoothing via moving averages, aggregation into customer-level summaries,
+ * discretization into bins, attribute construction like BMI, and feature
+ * scaling comparing Min-Max, Standardization, and Robust Scaling against
+ * Raju's 147-run outlier).
+ */
+const episode5ContentBlocks: ContentBlock[] = [
+  {
+    id: 's5-scene-kitchen',
+    type: 'scene',
+    order: 0,
+    sceneTitle: 'Shyam Ke Ghar Ki Rasoi',
+    location: 'Shyam ke ghar ki rasoi',
+    time: 'Sunday, 1:30 PM',
+    sessionLabel: 'Module 2 · Episode 5',
+    backgroundTheme: 'neutral',
+    ambientDescription:
+      'Cooker ki seetiyan baj rahi hain. Aunty rajma bana rahi hain, aur dono dost slab ke paas khade hokar jo mile wo chakh rahe hain. Salim ke haath mein ek plate hai jo kisi ne use di nahi thi.',
+    transitionStyle: 'fade',
+  },
+  {
+    id: 's5-dialogue-opening',
+    type: 'dialogue',
+    order: 1,
+    lines: [
+      { id: 'e5d1', speaker: 'salim', text: 'Aunty, rajma ki khushboo poore mohalle tak ja rahi hai.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e5d2', speaker: 'shyam', text: 'Isiliye tu bina bulaye aa gaya.', emphasis: 'none', displayOrder: 1 },
+      { id: 'e5d3', speaker: 'salim', text: 'Bulane ki zaroorat kise hai. Apna ghar hai.', emphasis: 'none', displayOrder: 2 },
+      { id: 'e5d4', speaker: 'shyam', text: 'Theek hai. To aaj class bhi apne ghar mein. Aur teacher main.', emphasis: 'none', displayOrder: 3 },
+      { id: 'e5d5', speaker: 'salim', text: 'Haan, pata hai.', stageDirection: 'aah bharte hue', emphasis: 'none', displayOrder: 4 },
+    ],
+  },
+  {
+    id: 's5-dialogue-data-transformation',
+    type: 'dialogue',
+    order: 2,
+    lines: [
+      { id: 'e5d6', speaker: 'shyam', text: 'Pichhle hafte tune kachra saaf karwaya. Data ab saaf hai. Lekin abhi bhi kachcha hai.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e5d7', speaker: 'salim', text: 'Kachcha matlab?', emphasis: 'none', displayOrder: 1 },
+      { id: 'e5d8', speaker: 'shyam', text: 'Jaise ye rajma. Dhoya, saaf kiya. Seedha khayega?', emphasis: 'none', displayOrder: 2 },
+      { id: 'e5d9', speaker: 'salim', text: 'Nahi. Pakana padega.', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e5d10',
+        speaker: 'shyam',
+        text: 'Bas. Data ko bhi model ke liye pakana padta hai. Ise kehte hain data transformation: raw data ko aisi form mein badalna jo modelling aur analysis ke liye suitable ho.',
+        emphasis: 'bold',
+        displayOrder: 4,
+      },
+      { id: 'e5d11', speaker: 'salim', text: 'Aur is rasoi mein kitni dishes banengi?', emphasis: 'none', displayOrder: 5 },
+      { id: 'e5d12', speaker: 'shyam', text: 'Paanch.', emphasis: 'none', displayOrder: 6 },
+    ],
+  },
+  {
+    id: 's5-concept-data-transformation',
+    type: 'concept',
+    order: 3,
+    conceptName: 'Data Transformation',
+    anchorId: 'data-transformation',
+    simpleDefinition:
+      'Raw aur saaf data ko aisi form mein badalna jo machine learning model aur analysis ke liye tayyar aur upyogi ho.',
+    technicalDefinition:
+      'The process of converting data from its raw, cleaned state into appropriate formats, distributions, or representations (via smoothing, aggregation, discretization, attribute construction, and scaling) suitable for statistical modeling and machine learning algorithms.',
+    realWorldExample:
+      'Jaise kachche rajma ko saaf karne ke baad seedha nahi khaya jaata balki pakana padta hai, waise hi data ko saaf karne ke baad model ke liye transform karna padta hai.',
+    relatedTerms: ['feature-engineering', 'preprocessing', 'feature-scaling', 'aggregation'],
+    bookmarkable: true,
+  },
+  {
+    id: 's5-table-5-dishes',
+    type: 'table',
+    order: 4,
+    caption: 'Data ki Rasoi: 5 dishes',
+    columns: ['Dish', 'Kya karti hai', 'Rasoi wala example'],
+    rows: [
+      ['Smoothing', 'Noise aur chhote utaar-chadhaav hatati hai', 'Daal chhaan ke kankad nikalna'],
+      ['Aggregation', 'Chhoti entries mila ke bada summary banati hai', 'Saare masale ek dabbe mein'],
+      ['Discretization', 'Continuous values ko categories mein baant-ti hai', 'Gajar ke tukde karna'],
+      ['Attribute construction', 'Purane features se naya feature', 'Laung-elaichi se garam masala'],
+      ['Scaling', 'Sab features ko ek taraazu pe laati hai', 'Recipe mein sab kuch grams mein'],
+    ],
+  },
+  {
+    id: 's5-divider-smoothing',
+    type: 'divider',
+    order: 5,
+    style: 'scene-break',
+    label: '1️⃣ Smoothing: Graph Ka Mood Theek Karo',
+  },
+  {
+    id: 's5-dialogue-smoothing',
+    type: 'dialogue',
+    order: 6,
+    lines: [
+      {
+        id: 'e5d13',
+        speaker: 'shyam',
+        text: 'Chhotu ki tapri yaad hai? Roz ki chai ki bikri: ek din 180, agle din 220, phir 150, phir 260. Graph upar-neeche, bilkul tere mood jaisa.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e5d14', speaker: 'salim', text: 'Mera mood bilkul stable hai.', emphasis: 'none', displayOrder: 1 },
+      { id: 'e5d15', speaker: 'shyam', text: 'Haan, jab tak koi teri diary na padhe.', emphasis: 'none', displayOrder: 2 },
+    ],
+  },
+  {
+    id: 's5-formula-moving-average',
+    type: 'formula',
+    order: 7,
+    title: "Shyam's Blackboard: Moving Average",
+    formula: 'SMA_k = (x_1 + x_2 + ... + x_k) / k',
+    variables: [
+      { symbol: 'k', meaning: 'Window size (kitne time-steps ka average lena hai, yahan k = 5)' },
+      { symbol: 'SMA_k', meaning: 'k-day Simple Moving Average' },
+    ],
+    stepByStepExplanation: [
+      'Chhotu ki 7 din ki chai bikri: Din 1: 180, Din 2: 220, Din 3: 150, Din 4: 260, Din 5: 190, Din 6: 210, Din 7: 170.',
+      '5-day moving average: har window ke 5 din ka average lo, phir window ek din aage khisakao.',
+      'Din 1–5: (180 + 220 + 150 + 260 + 190) / 5 = 1000 / 5 = 200',
+      'Din 2–6: (220 + 150 + 260 + 190 + 210) / 5 = 1030 / 5 = 206',
+      'Din 3–7: (150 + 260 + 190 + 210 + 170) / 5 = 980 / 5 = 196',
+      'Kahan use hota hai: stock prices, sensor readings, website traffic — jahan bhi data bahut fluctuate kare aur trend dekhna ho.',
+    ],
+    numericalExample:
+      'Raw data 150 se 260 tak uchhal raha tha. Smoothed data 196 se 206 ke beech hai, aur asli trend dikhta hai: roz lagbhag 200 chai.',
+    allowCopy: true,
+  },
+  {
+    id: 's5-divider-aggregation',
+    type: 'divider',
+    order: 8,
+    style: 'scene-break',
+    label: '2️⃣ Aggregation: Har Chai Ka Hisaab Nahi, Poora Pattern',
+  },
+  {
+    id: 's5-dialogue-upi-aggregation',
+    type: 'dialogue',
+    order: 9,
+    lines: [
+      { id: 'e5d16', speaker: 'shyam', text: 'Apni UPI history khol.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e5d17', speaker: 'salim', text: 'Kyun?', stageDirection: 'ghabrakar', emphasis: 'none', displayOrder: 1 },
+      { id: 'e5d18', speaker: 'shyam', text: 'Khol na.', emphasis: 'none', displayOrder: 2 },
+      {
+        id: 'e5d19',
+        speaker: 'salim',
+        text: '₹20, ₹20, ₹30, ₹20, ₹60... aur ek ₹12,000.',
+        stageDirection: 'dheere se',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      { id: 'e5d20', speaker: 'shyam', text: '₹12,000 kis baat ke?', emphasis: 'none', displayOrder: 4 },
+      { id: 'e5d21', speaker: 'salim', text: 'Wo... naya headphone.', emphasis: 'none', displayOrder: 5 },
+      { id: 'e5d22', speaker: 'shyam', text: 'Aur mere ₹500 ke liye paise nahi hain.', emphasis: 'none', displayOrder: 6 },
+      {
+        id: 'e5d23',
+        speaker: 'salim',
+        text: '₹125! Median se bhare the, bhool gaya?',
+        emphasis: 'bold',
+        displayOrder: 7,
+      },
+    ],
+  },
+  {
+    id: 's5-concept-aggregation',
+    type: 'concept',
+    order: 10,
+    conceptName: 'Aggregation',
+    anchorId: 'aggregation',
+    simpleDefinition:
+      'Kai chhoti-chhoti entries ko group karke ek summary attribute banana, jaise SQL mein GROUP BY.',
+    technicalDefinition:
+      'A data transformation technique where multiple raw data records are combined into summary measures (mean, sum, frequency, standard deviation) over defined groups (e.g. per customer, per month) to expose high-level patterns and reduce dimensionality.',
+    realWorldExample:
+      'Model ko Salim ki har ₹20 wali chai ka alag record nahi chahiye; use Salim ka pattern chahiye — monthly total spend, average spend, aur high-value spend.',
+    relatedTerms: ['group-by', 'summary-statistics', 'data-reduction'],
+    bookmarkable: true,
+  },
+  {
+    id: 's5-table-aggregation-features',
+    type: 'table',
+    order: 11,
+    caption: 'Raw transactions se banaye gaye aggregated monthly features',
+    columns: ['Naya feature', 'Matlab'],
+    rows: [
+      ['Total monthly spend', 'Mahine ka kul kharch'],
+      ['Average transaction value', 'Ek payment ka average'],
+      ['Transaction frequency', 'Mahine mein kitni baar payment'],
+      ['SD of transaction values', 'Kharch kitna upar-neeche hota hai'],
+      ['High-value transactions (> ₹10,000)', 'Bade kharch kitni baar'],
+    ],
+    note: 'Fayda: Data chhota hota hai, noise kam hota hai, aur pattern saaf dikhta hai. Aur bhi examples: Daily sales → weekly → monthly sales; Customer-wise average spending.',
+  },
+  {
+    id: 's5-banter-bank-upi',
+    type: 'banter',
+    order: 12,
+    speaker: 'shyam',
+    text: 'Salim: "Aur bank mere baare mein kya sochega?" Shyam: "Yahi ki banda roz ₹20 ki chai peeta hai, aur saal mein ek baar emotional hokar headphone khareedta hai."',
+    reactionEmoji: '🎧',
+  },
+  {
+    id: 's5-divider-discretization',
+    type: 'divider',
+    order: 13,
+    style: 'scene-break',
+    label: '3️⃣ Discretization: Gajar Ke Tukde',
+  },
+  {
+    id: 's5-dialogue-discretization',
+    type: 'dialogue',
+    order: 14,
+    lines: [
+      { id: 'e5d24', speaker: 'shyam', text: 'Aunty, zara gajar kaatne do.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e5d25', speaker: 'salim', text: 'Ab tu sabzi kaatega?', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e5d26',
+        speaker: 'shyam',
+        text: 'Haan. Poori gajar ek lambi cheez hai. Kaati to tukde ban gaye. Discretization mein hum continuous value ko tukdon, yaani categories mein baant-te hain.',
+        emphasis: 'bold',
+        displayOrder: 2,
+      },
+    ],
+  },
+  {
+    id: 's5-concept-discretization',
+    type: 'concept',
+    order: 15,
+    conceptName: 'Discretization',
+    anchorId: 'discretization',
+    simpleDefinition:
+      'Continuous numerical values ko tukdon yaani categorical bins mein badalna.',
+    technicalDefinition:
+      'The process of partitioning continuous attributes into a finite number of categorical intervals or bins (e.g. equal-width, equal-frequency, or tree-based splits) to reduce complexity for rule-based models.',
+    realWorldExample:
+      'Poori gajar ko kaat ke tukde banana — jaise exact age ke bajaye logon ko Young, Adult, aur Senior kehna.',
+    relatedTerms: ['binning', 'continuous-to-categorical', 'equal-width-binning', 'equal-frequency-binning'],
+    bookmarkable: true,
+  },
+  {
+    id: 's5-table-discretization-examples',
+    type: 'table',
+    order: 16,
+    caption: 'Continuous se Categorical bins ke examples',
+    columns: ['Continuous', 'Discretized'],
+    rows: [
+      ['Age 18–35', 'Young'],
+      ['Age 36–59', 'Adult'],
+      ['Age 60+', 'Senior'],
+      ['GPA 4–6', 'Low'],
+      ['GPA 6–8', 'Medium'],
+      ['GPA 8–10', 'High'],
+    ],
+    note: 'Kahan kaam aata hai: Decision Trees aur rule-based models mein. Trade-off: Detail chali jaati hai (36 aur 59 saal wale ek hi bin mein aa jaate hain).',
+  },
+  {
+    id: 's5-flashback-uncle-ball',
+    type: 'flashback',
+    order: 17,
+    title: 'Cricket Ground Pe "Uncle"',
+    dateBadge: 'Pichhla Sunday',
+    bodyMarkdown:
+      'Pichhle Sunday mohalle ke cricket ground ki tooti deewar par class chal rahi thi, tabhi boundary ke paas ek kissa hua tha...',
+    lines: [
+      {
+        id: 'e5f1',
+        speaker: 'shyam',
+        text: 'Pichhle hafte ground pe ek bachche ne bola tha, "Uncle, ball de do."',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e5f2', speaker: 'salim', text: 'Wo mujhe nahi bola tha!', emphasis: 'none', displayOrder: 1 },
+      { id: 'e5f3', speaker: 'shyam', text: 'Tu hi naali ke paas khada tha. Hamesha ki tarah.', emphasis: 'none', displayOrder: 2 },
+      {
+        id: 'e5f4',
+        speaker: 'salim',
+        text: 'Ye data mein bias hai. Mere hisaab se main abhi bhi Young bin mein hoon.',
+        stageDirection: 'karaahte hue',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+    ],
+    entryAnimation: 'page-turn',
+  },
+  {
+    id: 's5-divider-attribute-construction',
+    type: 'divider',
+    order: 18,
+    style: 'scene-break',
+    label: '4️⃣ Attribute Construction: Ghar Ka Garam Masala',
+  },
+  {
+    id: 's5-dialogue-garam-masala',
+    type: 'dialogue',
+    order: 19,
+    lines: [
+      {
+        id: 'e5d27',
+        speaker: 'shyam',
+        text: 'Aunty jo garam masala banati hain, wo kisi packet se nahi aata. Laung, elaichi, dalchini mila ke banta hai.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e5d28', speaker: 'salim', text: 'Matlab purane features mila ke naya feature?', emphasis: 'none', displayOrder: 1 },
+      { id: 'e5d29', speaker: 'shyam', text: 'Bilkul.', emphasis: 'bold', displayOrder: 2 },
+    ],
+  },
+  {
+    id: 's5-concept-attribute-construction',
+    type: 'concept',
+    order: 20,
+    conceptName: 'Attribute Construction',
+    anchorId: 'attribute-construction',
+    simpleDefinition:
+      'Existing attributes se naye, zyada meaningful aur useful attributes banana.',
+    technicalDefinition:
+      'The creation of novel features from existing ones through domain-driven transformations, ratios, differences, interaction terms, or extractions (e.g., date components), improving the expressive power of machine learning models.',
+    realWorldExample:
+      'Laung, elaichi aur dalchini mila ke garam masala banana — jaise weight aur height mila ke BMI banana, kyunki akela weight misleading hota hai.',
+    relatedTerms: ['feature-engineering', 'interaction-term', 'domain-knowledge', 'derived-features'],
+    bookmarkable: true,
+  },
+  {
+    id: 's5-table-attribute-construction',
+    type: 'table',
+    order: 21,
+    caption: 'Existing features se naye attributes banane ke examples',
+    columns: ['Naya feature', 'Kaise bana', 'Kyun useful'],
+    rows: [
+      ['BMI', 'weight / height^2', 'Akela weight misleading hai. 70 kg lamba banda fit ho sakta hai, chhota banda nahi'],
+      ['Interaction term', 'age × income', 'Do features ka combined asar pakadta hai'],
+      ['Day of week, month', 'date se', 'Weekly ya seasonal patterns samajhne ke liye'],
+      ['Weekend / holiday flag', 'date se', 'Sunday ko Chhotu ki chai zyada bikti hai'],
+    ],
+  },
+  {
+    id: 's5-formula-bmi',
+    type: 'formula',
+    order: 22,
+    title: 'Attribute Construction Formula: BMI',
+    formula: 'BMI = weight / height^2',
+    variables: [
+      { symbol: 'weight', meaning: 'Wazan (kilograms mein)' },
+      { symbol: 'height', meaning: 'Lambai (meters mein)' },
+    ],
+    stepByStepExplanation: [
+      'Example: weight = 70 kg, height = 1.75 m',
+      'Step 1: height ka square calculate karo: 1.75^2 = 3.0625 m²',
+      'Step 2: weight ko divide karo: 70 / 3.0625 ≈ 22.857 kg/m²',
+    ],
+    numericalExample: 'BMI = 70 / (1.75)^2 = 70 / 3.0625 ≈ 22.9',
+    allowCopy: true,
+  },
+  {
+    id: 's5-banter-biryani-bmi',
+    type: 'banter',
+    order: 23,
+    speaker: 'salim',
+    text: 'Salim: "Tera BMI Ammi ki biryani ke baad kitna hai?" Shyam: "Wo personal data hai. Missing value samajh." Salim: ""Unknown" se bhar doon?"',
+    reactionEmoji: '🍛',
+  },
+  {
+    id: 's5-divider-feature-scaling',
+    type: 'divider',
+    order: 24,
+    style: 'scene-break',
+    label: '5️⃣ Feature Scaling: Sab Ek Taraazu Pe',
+  },
+  {
+    id: 's5-dialogue-scaling-taraazu',
+    type: 'dialogue',
+    order: 25,
+    lines: [
+      { id: 'e5d30', speaker: 'shyam', text: 'Ab aakhri aur sabse zaroori dish.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e5d31', speaker: 'salim', text: 'Wahi taraazu wali baat? Meri salary aur teri age?', emphasis: 'none', displayOrder: 1 },
+      { id: 'e5d32', speaker: 'shyam', text: 'Haan. Meri age 27, salary ₹12 lakh. Teri age 26, salary ₹10 lakh.', emphasis: 'none', displayOrder: 2 },
+      { id: 'e5d33', speaker: 'salim', text: 'To?', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e5d34',
+        speaker: 'shyam',
+        text: 'KNN jaise models distance se tay karte hain ki kaun kiske jaisa hai. Age mein farak 1, salary mein farak 2,00,000.',
+        emphasis: 'bold',
+        displayOrder: 4,
+      },
+    ],
+  },
+  {
+    id: 's5-formula-unscaled-distance',
+    type: 'formula',
+    order: 26,
+    title: 'Distance Without Scaling (Euclidean Distance)',
+    formula: 'Distance = sqrt((age_1 - age_2)^2 + (salary_1 - salary_2)^2)',
+    variables: [
+      { symbol: 'age', meaning: 'Chhoti value wala feature (range 20–30)' },
+      { symbol: 'salary', meaning: 'Badi value wala feature (range ₹4,00,000–₹20,00,000)' },
+    ],
+    stepByStepExplanation: [
+      'Shyam: Age = 27, Salary = ₹12,00,000 | Salim: Age = 26, Salary = ₹10,00,000',
+      'Age farak: (27 - 26)² = 1² = 1',
+      'Salary farak: (12,00,000 - 10,00,000)² = (2,00,000)² = 40,000,000,000',
+      'Total distance: sqrt(1 + 40,000,000,000) ≈ 2,00,000',
+    ],
+    numericalExample:
+      'Distance = sqrt((27-26)^2 + (12,00,000-10,00,000)^2) ≈ 2,00,000. Age ka 1 is calculation mein bilkul gayab ho gaya!',
+    allowCopy: true,
+  },
+  {
+    id: 's5-dialogue-distance-result',
+    type: 'dialogue',
+    order: 27,
+    lines: [
+      { id: 'e5d35', speaker: 'salim', text: 'To distance mein sirf salary dikhegi.', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e5d36',
+        speaker: 'shyam',
+        text: 'Bilkul. Age ka koi matlab hi nahi reh jaata. Jaise recipe mein ek cheez grams mein likhi ho aur doosri kilo mein.',
+        emphasis: 'bold',
+        displayOrder: 1,
+      },
+    ],
+  },
+  {
+    id: 's5-concept-feature-scaling',
+    type: 'concept',
+    order: 28,
+    conceptName: 'Feature Scaling',
+    anchorId: 'feature-scaling',
+    simpleDefinition:
+      'Sab features ko ek hi taraazu ya standard scale pe laana, taaki bade numbers wale features baaki features pe haavi na ho sakein.',
+    technicalDefinition:
+      'Rescaling input features so that they share a common numerical range or statistical properties. Essential for distance-based algorithms (KNN, SVM, K-Means) and optimization algorithms like Gradient Descent where varying magnitudes cause uneven parameter updates.',
+    realWorldExample:
+      'Recipe mein saare masale aur ingredients ko ek standard unit (grams) mein taulna — taaki namak ke 5 gram aur aate ke 2 kilo ka anupaat bigad na jaaye.',
+    relatedTerms: ['min-max-scaling', 'standardization', 'z-score', 'robust-scaling', 'gradient-descent'],
+    bookmarkable: true,
+  },
+  {
+    id: 's5-formula-min-max',
+    type: 'formula',
+    order: 29,
+    title: "Shyam's Blackboard: A. Min-Max Scaling",
+    formula: "x' = (x - x_{min}) / (x_{max} - x_{min})",
+    variables: [
+      { symbol: 'x_{min}', meaning: 'Feature ki minimum value' },
+      { symbol: 'x_{max}', meaning: 'Feature ki maximum value' },
+      { symbol: "x'", meaning: 'Scaled value (default range [0, 1])' },
+    ],
+    stepByStepExplanation: [
+      'Output range [0, 1] hoti hai (ya koi bhi custom range [a, b]).',
+      'Age (Range 20–30, Shyam = 27): (27 − 20) / (30 − 20) = 7 / 10 = 0.7',
+      'Salary (Range ₹4L–₹20L, Shyam = ₹12L): (12 − 4) / (20 − 4) = 8 / 16 = 0.5',
+      'Ab dono features [0, 1] range mein barabar ladenge.',
+    ],
+    numericalExample: 'Age = 0.7, Salary = 0.5. Dono barabar scale pe aa gaye.',
+    allowCopy: true,
+  },
+  {
+    id: 's5-formula-standardization',
+    type: 'formula',
+    order: 30,
+    title: "Shyam's Blackboard: B. Standardization (Z-score)",
+    formula: 'z = (x - {mu}) / {sigma}',
+    variables: [
+      { symbol: '{mu}', meaning: 'Mean (average)' },
+      { symbol: '{sigma}', meaning: 'Standard deviation' },
+      { symbol: 'z', meaning: 'Z-score (mean 0 aur standard deviation 1 par centred)' },
+    ],
+    stepByStepExplanation: [
+      'Result ka mean = 0 aur standard deviation = 1. Data 0 ke aas-paas centred ho jaata hai.',
+      'Example: Mean income μ = ₹20,000, σ = ₹5,000',
+      'Income ₹10,000: z = (10,000 − 20,000) / 5,000 = −2.0',
+      'Income ₹20,000: z = (20,000 − 20,000) / 5,000 = 0.0',
+      'Income ₹30,000: z = (30,000 − 20,000) / 5,000 = +2.0',
+      'Kab use karein: Jab data lagbhag Gaussian (bell curve) ho. SVM aur Logistic Regression mein bahut common hai.',
+    ],
+    numericalExample: '₹10k → z = −2.0; ₹20k → z = 0.0; ₹30k → z = +2.0.',
+    allowCopy: true,
+  },
+  {
+    id: 's5-formula-robust-scaling',
+    type: 'formula',
+    order: 31,
+    title: "Shyam's Blackboard: C. Robust Scaling",
+    formula: "x' = (x - Median) / IQR",
+    variables: [
+      { symbol: 'Median', meaning: 'Beech ki value (Q2)' },
+      { symbol: 'IQR', meaning: 'Interquartile Range (Q3 - Q1)' },
+      { symbol: "x'", meaning: 'Robust scaled value' },
+    ],
+    stepByStepExplanation: [
+      'Formula: x_scaled = (x - Median) / IQR',
+      'Median aur IQR outliers se nahi bigadte, isliye extreme outliers wale data ke liye best hai.',
+    ],
+    numericalExample: "x' = (x - Median) / IQR — outliers se poori tarah surakshit.",
+    allowCopy: true,
+  },
+  {
+    id: 's5-confusion-scaling',
+    type: 'confusion',
+    order: 32,
+    misconception:
+      'Teeno scaling methods (Min-Max, Standardization, Robust) ka kaam same hai, to koi sa bhi use kar lo koi farak nahi padta.',
+    clarification:
+      'Min-Max outliers se darta hai — ek outlier (jaise Raju ke 147 runs) poori team ko 0 se 0.1 ke beech dabake kuchal deta hai. Robust Scaling median aur IQR use karta hai, isliye outliers ke bawajood baaki team ka distribution safe rehta hai.',
+    relatedConceptRef: 'feature-scaling',
+  },
+  {
+    id: 's5-table-raju-scaling',
+    type: 'table',
+    order: 33,
+    caption: 'Raju ke match scores par Min-Max vs Robust Scaling (Median = 13, IQR = 8)',
+    columns: ['Score', 'Min-Max', 'Robust (median 13, IQR 8)'],
+    rows: [
+      ['8', '0.000', '−0.62'],
+      ['12', '0.029', '−0.12'],
+      ['18', '0.072', '0.62'],
+      ['22', '0.101', '1.12'],
+      ['147', '1.000', '16.75'],
+    ],
+    note: 'Min-Max: Raju 1 pe pahunch gaya, aur baaki team 0 se 0.1 ke beech dab gayi. Robust: Baaki team −0.62 se 1.12 ke beech aaram se faili hui hai aur Raju 16.75 pe akela khada hai.',
+  },
+  {
+    id: 's5-example-scaling-exam',
+    type: 'example',
+    order: 34,
+    title: 'Exam-style question: Feature scaling ke common myths',
+    scenario: 'Feature scaling ke baare mein ye statements sahi hain ya galat?',
+    walkthroughMarkdown:
+      '1. **"Scaling guarantee karta hai ki algorithm global minimum pe converge karega"** → **❌ Galat**. Scaling sirf raasta chhota aur seedha karta hai, global minimum par pahunchne ki guarantee nahi deta.\n\n2. **"Scaling normal equation mein XᵀX ko non-invertible hone se rokta hai"** → **❌ Galat**. Invertibility features ke beech linear dependence (multicollinearity) pe depend karti hai, unke scale pe nahi.\n\n3. **"Scaling gradient descent ko local optima mein phansne se rokta hai"** → **❌ Galat**. Linear regression ka cost function strictly convex hota hai jisme local optima hote hi nahi. Aur scaling convexity nahi badalta.\n\n4. **"Scaling gradient descent ko kam iterations mein achhe solution tak pahunchata hai"** → **✅ Sahi**. Cost function ke contours elongated ellipses se zyada gol (circular) ho jaate hain, isliye Gradient Descent zig-zag karne ke bajaye seedha neeche minimum ki taraf jaata hai.',
+    outcome:
+      'Sirf chautha statement sahi hai! Scaling se Gradient Descent fast aur direct converge karta hai.',
+  },
+  {
+    id: 's5-summary-recap',
+    type: 'summary',
+    order: 35,
+    title: 'Aaj Shyam Ne Salim Ko Kya Sikhaya?',
+    points: [
+      'Smoothing: Noise hata ke trend dikhao, jaise moving average.',
+      'Aggregation: Kai records mila ke summary features banao (daily → monthly, total spend, average transaction value).',
+      'Discretization: Continuous values ko bins mein baanto (age → Young/Adult/Senior). Decision trees aur rule-based models ke kaam aata hai, lekin detail jaati hai.',
+      'Attribute construction: Purane features se naye banao (BMI, age × income, date → weekend flag).',
+      'Min-Max: [0, 1] range, lekin outliers se bigadta hai.',
+      'Standardization: mean 0, SD 1. Gaussian data ke liye.',
+      'Robust Scaling: median aur IQR. Outliers wale data ke liye.',
+      'Scaling KNN, SVM aur gradient descent ke liye zaroori hai. Decision trees ko usually nahi chahiye.',
+    ],
+  },
+  {
+    id: 's5-quiz-episode-5',
+    type: 'quiz',
+    order: 36,
+    title: 'Chai Break Quiz ☕',
+    questions: [
+      {
+        id: 'e5q1',
+        questionType: 'multiple-choice',
+        prompt:
+          'Ek dataset mein house size 500–5,000 sq ft hai aur bedrooms 1–5. KNN lagane se pehle kya karoge?',
+        options: [
+          { id: 'a', text: 'Feature scaling karenge' },
+          { id: 'b', text: 'Bedrooms feature ko drop kar denge' },
+          { id: 'c', text: 'Kuch karne ki zaroorat nahi hai' },
+        ],
+        correctOptionId: 'a',
+        explanation:
+          'Feature scaling zaroori hai. Warna distance formula mein sirf house size dikhega aur bedrooms ka asar khatam ho jaayega.',
+      },
+      {
+        id: 'e5q2',
+        questionType: 'short-answer',
+        prompt: 'Exam scores ka mean 60 hai aur σ = 10. 75 marks ka z-score kya hai?',
+        acceptableAnswers: ['1.5', '+1.5', '1.50'],
+        explanation: 'z = (75 − 60) / 10 = 15 / 10 = 1.5.',
+      },
+      {
+        id: 'e5q3',
+        questionType: 'short-answer',
+        prompt: 'Ages 20 se 60 ke beech hain. Age 50 ka Min-Max scaled value kya hai?',
+        acceptableAnswers: ['0.75', '.75', '3/4'],
+        explanation: '(50 − 20) / (60 − 20) = 30 / 40 = 0.75.',
+      },
+      {
+        id: 'e5q4',
+        questionType: 'multiple-choice',
+        prompt: 'Data mein bahut bade extreme outliers hain. Kaunsa scaling method chunoge?',
+        options: [
+          { id: 'a', text: 'Min-Max Scaling' },
+          { id: 'b', text: 'Standardization (Z-score)' },
+          { id: 'c', text: 'Robust Scaling' },
+        ],
+        correctOptionId: 'c',
+        explanation: 'Robust Scaling, kyunki median aur IQR outliers se prabhavit nahi hote.',
+      },
+    ],
+  },
+  {
+    id: 's5-homework-episode-5',
+    type: 'homework',
+    order: 37,
+    dueLabel: 'Comments mein batao',
+    difficulty: 'easy',
+    tasks: [
+      'Apne UPI app ki pichhle mahine ki history dekho aur ye 3 aggregated features nikaalo:',
+      '1. Total monthly spend, 2. Average transaction value, 3. ₹1,000 se upar wali transactions ki ginti.',
+      'Comments mein sirf ye batao: tumhara sabse funny "outlier" kharcha kya tha? 😄',
+    ],
+  },
+  {
+    id: 's5-dialogue-teaser-banter',
+    type: 'dialogue',
+    order: 38,
+    lines: [
+      {
+        id: 'e5d37',
+        speaker: 'salim',
+        text: 'Agli baar meri class. Aur Module 2 khatam. Ab asli model banayenge.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e5d38', speaker: 'shyam', text: 'Kaunsa?', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e5d39',
+        speaker: 'salim',
+        text: 'Linear Regression. Ek seedhi line, jo batayegi ki ghar ki keemat kitni hogi.',
+        emphasis: 'bold',
+        displayOrder: 2,
+      },
+      {
+        id: 'e5d40',
+        speaker: 'shyam',
+        text: 'Aur mere ₹500 kab milenge, wo bhi batayegi?',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      {
+        id: 'e5d41',
+        speaker: 'salim',
+        text: 'Uske liye line nahi, chamatkaar chahiye.',
+        emphasis: 'highlight',
+        displayOrder: 4,
+      },
+    ],
+  },
+  {
+    id: 's5-teaser-next-episode',
+    type: 'teaser',
+    order: 39,
+    nextEpisodeTitle: 'Ek Seedhi Line Ki Kahani: Linear Regression',
+    teaserText:
+      'Agle Sunday: Salim sikhayega Linear Regression — ek seedhi line jo ghar ki keemat predict karegi. Aur Module 2 ka grand finale!',
   },
 ];
 
@@ -2525,6 +3180,13 @@ async function seed(): Promise<void> {
   if (!parsedEpisode4.success) {
     console.error('Episode 4 seed content blocks failed validation:');
     console.error(parsedEpisode4.error.format());
+    process.exit(1);
+  }
+
+  const parsedEpisode5 = contentBlocksSchema.safeParse(episode5ContentBlocks);
+  if (!parsedEpisode5.success) {
+    console.error('Episode 5 seed content blocks failed validation:');
+    console.error(parsedEpisode5.error.format());
     process.exit(1);
   }
 
@@ -2765,6 +3427,51 @@ async function seed(): Promise<void> {
     { upsert: true, returnDocument: 'after' },
   );
 
+  const episode5Slug = toSlug('Data Ki Rasoi Smoothing Aggregation Aur Scaling');
+  const readingTime5 = calculateReadingTime(parsedEpisode5.data);
+
+  await db.collection<Omit<EpisodeDocument, '_id'>>(COLLECTIONS.EPISODES).findOneAndUpdate(
+    { slug: episode5Slug },
+    {
+      $set: {
+        seriesId,
+        moduleId,
+        seriesSlug,
+        seriesTitle: series.title,
+        moduleSlug,
+        moduleTitle: moduleDoc.title,
+        title: 'Data Ki Rasoi: Smoothing, Aggregation Aur Scaling',
+        subtitle: 'Paanchwa Sunday: Data transformation — smoothing, aggregation, discretization, attribute construction aur feature scaling',
+        episodeNumber: 5,
+        teacherCharacter: 'shyam',
+        studentCharacter: 'salim',
+        excerpt:
+          'Cooker ki seetiyan aur aunty ke rajma ki khushboo ke beech, Shyam aur Salim rasoi mein khade hokar seekhte hain ki data ko model ke liye kaise pakaya jaata hai: smoothing, aggregation, discretization aur feature scaling.',
+        location: 'Shyam ke ghar ki rasoi',
+        // 1:30 PM IST on Sunday 2026-03-08.
+        sessionDate: new Date('2026-03-08T08:00:00.000Z'),
+        readingTime: readingTime5,
+        contentBlocks: parsedEpisode5.data,
+        tags: ['data', 'data-transformation', 'feature-scaling', 'aggregation', 'smoothing'],
+        concepts: ['data-transformation', 'aggregation', 'discretization', 'attribute-construction', 'feature-scaling'],
+        status: 'published',
+        publishedAt: new Date('2026-03-08T08:00:00.000Z'),
+        featured: false,
+        seo: {
+          metaTitle: 'Data Ki Rasoi: Smoothing, Aggregation Aur Scaling',
+          metaDescription:
+            'Shyam aur Salim samjhate hain data transformation — smoothing, aggregation, discretization, attribute construction aur feature scaling (Min-Max, Standardization, Robust).',
+          noIndex: false,
+        },
+        createdBy: SEED_ACTOR,
+        updatedBy: SEED_ACTOR,
+      },
+      $setOnInsert: { createdAt: now, revision: 1 },
+      $currentDate: { updatedAt: true },
+    },
+    { upsert: true, returnDocument: 'after' },
+  );
+
   console.warn('Seed complete:');
   console.warn(`  series:    /series/${seriesSlug}`);
   console.warn(`  module:    /series/${seriesSlug}/module/${moduleSlug}`);
@@ -2772,6 +3479,7 @@ async function seed(): Promise<void> {
   console.warn(`  episode 2: /episodes/${episode2Slug}`);
   console.warn(`  episode 3: /episodes/${episode3Slug} (audio not attached yet)`);
   console.warn(`  episode 4: /episodes/${episode4Slug}`);
+  console.warn(`  episode 5: /episodes/${episode5Slug}`);
 }
 
 seed()
