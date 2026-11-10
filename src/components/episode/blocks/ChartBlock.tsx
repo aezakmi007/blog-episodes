@@ -13,6 +13,7 @@ import {
   Line,
   BarChart,
   Bar,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -37,19 +38,36 @@ export default function ChartBlock({ block }: { block: ChartBlockData }) {
   const gridColor = theme.palette.divider;
   const textColor = theme.palette.text.secondary;
   const trendColor = theme.palette.error.main;
+  const isDark = theme.palette.mode === 'dark';
 
   // Flatten data points into a Recharts-friendly array.
-  // Each point: { label, x, y, ...otherValues }
+  // Each point: { name, [xKey], [yKey], ...values }
   const dataKeys = Object.keys(block.dataPoints[0]?.values ?? {});
-  const xKey = dataKeys[0] ?? 'x';
-  const yKey = dataKeys[1] ?? 'y';
+  const xKey: string = dataKeys[0] ?? 'x';
+  const yKey: string = dataKeys[1] ?? 'y';
 
-  const data = block.dataPoints.map((dp) => ({
-    name: dp.label,
-    [xKey]: dp.values[xKey],
-    [yKey]: dp.values[yKey],
-    ...dp.values,
-  }));
+  // For bar charts, the value key is often single-keyed (e.g. { weight: 4.0 })
+  const barValueKey: string =
+    block.chartType === 'bar'
+      ? (dataKeys.length === 1 ? (dataKeys[0] ?? 'value') : (dataKeys[1] ?? dataKeys[0] ?? 'value'))
+      : yKey;
+
+  interface ChartDataItem {
+    name: string;
+    [key: string]: string | number | undefined;
+  }
+
+  const data: ChartDataItem[] = block.dataPoints.map((dp) => {
+    const rawValues = dp.values ?? {};
+    const firstVal = Object.values(rawValues)[0] ?? 0;
+    return {
+      name: dp.label,
+      ...rawValues,
+      [xKey]: rawValues[xKey] ?? firstVal,
+      [yKey]: rawValues[yKey] ?? firstVal,
+      [barValueKey]: rawValues[barValueKey] ?? firstVal,
+    };
+  });
 
   // Generate trend line points for the visible x-range
   const trendPoints = React.useMemo(() => {
@@ -110,6 +128,15 @@ export default function ChartBlock({ block }: { block: ChartBlockData }) {
                 border: `1px solid ${gridColor}`,
                 borderRadius: 8,
                 fontSize: 13,
+                color: theme.palette.text.primary,
+              }}
+              labelStyle={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                marginBottom: 4,
+              }}
+              itemStyle={{
+                color: theme.palette.text.primary,
               }}
             />
             <Scatter data={data} fill={primaryColor} r={6} />
@@ -180,6 +207,15 @@ export default function ChartBlock({ block }: { block: ChartBlockData }) {
                 border: `1px solid ${gridColor}`,
                 borderRadius: 8,
                 fontSize: 13,
+                color: theme.palette.text.primary,
+              }}
+              labelStyle={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                marginBottom: 4,
+              }}
+              itemStyle={{
+                color: theme.palette.text.primary,
               }}
             />
             <Line type="monotone" dataKey={yKey} stroke={primaryColor} strokeWidth={2} dot={{ r: 4 }} />
@@ -195,7 +231,7 @@ export default function ChartBlock({ block }: { block: ChartBlockData }) {
                 <Label value={block.xAxisLabel} position="bottom" offset={20} fill={textColor} fontSize={13} />
               )}
             </XAxis>
-            <YAxis tick={{ fill: textColor, fontSize: 12 }}>
+            <YAxis tick={{ fill: textColor, fontSize: 12 }} domain={['auto', 'auto']}>
               {block.yAxisLabel && (
                 <Label
                   value={block.yAxisLabel}
@@ -209,15 +245,33 @@ export default function ChartBlock({ block }: { block: ChartBlockData }) {
               )}
             </YAxis>
             <Tooltip
+              cursor={{
+                fill: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)',
+              }}
               contentStyle={{
                 backgroundColor: theme.palette.background.paper,
                 border: `1px solid ${gridColor}`,
                 borderRadius: 8,
                 fontSize: 13,
+                color: theme.palette.text.primary,
+              }}
+              labelStyle={{
+                fontWeight: 600,
+                color: theme.palette.text.primary,
+                marginBottom: 4,
+              }}
+              itemStyle={{
+                color: theme.palette.text.primary,
               }}
             />
-            <ReferenceLine y={0} stroke={gridColor} />
-            <Bar dataKey={yKey} fill={primaryColor} radius={[4, 4, 0, 0]} />
+            <ReferenceLine y={0} stroke={textColor} strokeWidth={1.5} />
+            <Bar dataKey={barValueKey} radius={[4, 4, 4, 4]}>
+              {data.map((entry, index) => {
+                const val = Number(entry[barValueKey]);
+                const fillColor = val >= 0 ? primaryColor : theme.palette.error.main;
+                return <Cell key={`cell-${index}`} fill={fillColor} />;
+              })}
+            </Bar>
           </BarChart>
         );
       }
