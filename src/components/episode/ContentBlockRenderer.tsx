@@ -9,6 +9,7 @@ import CodeBlock from './blocks/CodeBlock';
 import ExampleBlock from './blocks/ExampleBlock';
 import TableBlockRenderer from './blocks/TableBlockRenderer';
 import ImageBlockRenderer from './blocks/ImageBlockRenderer';
+import ChartBlock from './blocks/ChartBlock';
 import QuizBlock from './blocks/QuizBlock';
 import {
   BanterCallout,
@@ -57,6 +58,8 @@ export default function ContentBlockRenderer({
       return <TableBlockRenderer block={block} />;
     case 'image':
       return <ImageBlockRenderer block={block} />;
+    case 'chart':
+      return <ChartBlock block={block} />;
     case 'banter':
       return <BanterCallout block={block} />;
     case 'confusion':

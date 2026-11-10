@@ -21,6 +21,7 @@ export const BLOCK_TYPE_META: BlockTypeMeta[] = [
   { type: 'example', label: 'Example', shortDescription: 'A worked scenario and its outcome' },
   { type: 'table', label: 'Table', shortDescription: 'Rows and columns of structured data' },
   { type: 'image', label: 'Image', shortDescription: 'A standalone illustration or photo' },
+  { type: 'chart', label: 'Chart', shortDescription: 'An interactive scatter, line, or bar chart' },
   { type: 'banter', label: 'Joke / banter', shortDescription: 'A short, callout-styled aside' },
   { type: 'confusion', label: 'Common confusion', shortDescription: 'A misconception and its fix' },
   { type: 'examTip', label: 'Exam tip', shortDescription: 'A short, highlighted pointer' },
@@ -124,6 +125,17 @@ export function createDefaultBlock(type: ContentBlockType, order: number): Conte
         image: { src: '', alt: '' },
         decorative: false,
       };
+    case 'chart':
+      return {
+        id,
+        type,
+        order,
+        title: 'New chart',
+        chartType: 'scatter',
+        dataPoints: [{ label: 'Point 1', values: { x: 0, y: 0 } }],
+        annotations: [],
+        height: 320,
+      };
     case 'banter':
       return { id, type, order, text: 'A short joke or aside…' };
     case 'confusion':
@@ -189,6 +201,8 @@ export function summarizeBlock(block: ContentBlock): string {
       return `${block.rows.length} row${block.rows.length === 1 ? '' : 's'} × ${block.columns.length} cols`;
     case 'image':
       return block.caption || block.image.alt || 'Image';
+    case 'chart':
+      return block.title;
     case 'banter':
       return block.text.slice(0, 80);
     case 'confusion':

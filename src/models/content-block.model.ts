@@ -310,7 +310,45 @@ export const teaserBlockSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
-// 18. Divider / scene transition
+// 18. Chart / graph
+// ---------------------------------------------------------------------------
+export const chartDataPointSchema = z.object({
+  label: z.string().min(1).max(80),
+  values: z.record(z.string(), z.number()),
+});
+
+export const chartBlockSchema = z.object({
+  ...blockBase,
+  type: z.literal('chart'),
+  title: z.string().min(1).max(200),
+  chartType: z.enum(['scatter', 'line', 'bar']),
+  xAxisLabel: z.string().max(100).optional(),
+  yAxisLabel: z.string().max(100).optional(),
+  dataPoints: z.array(chartDataPointSchema).min(1),
+  /** Optional best-fit / reference line: y = slopeX + intercept */
+  trendLine: z
+    .object({
+      slope: z.number(),
+      intercept: z.number(),
+      label: z.string().max(100).optional(),
+    })
+    .optional(),
+  /** Optional annotation lines / points */
+  annotations: z
+    .array(
+      z.object({
+        x: z.number(),
+        y: z.number(),
+        label: z.string().max(120),
+      }),
+    )
+    .optional(),
+  caption: z.string().max(400).optional(),
+  height: z.number().int().positive().optional(),
+});
+
+// ---------------------------------------------------------------------------
+// 19. Divider / scene transition
 // ---------------------------------------------------------------------------
 export const dividerBlockSchema = z.object({
   ...blockBase,
@@ -340,6 +378,7 @@ export const contentBlockSchema = z.discriminatedUnion('type', [
   homeworkBlockSchema,
   summaryBlockSchema,
   teaserBlockSchema,
+  chartBlockSchema,
   dividerBlockSchema,
 ]);
 

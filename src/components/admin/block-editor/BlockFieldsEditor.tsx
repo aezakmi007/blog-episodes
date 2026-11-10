@@ -527,6 +527,64 @@ export default function BlockFieldsEditor({
         </Stack>
       );
 
+    case 'chart':
+      return (
+        <Stack spacing={2}>
+          <TextField
+            label="Chart title"
+            fullWidth
+            value={block.title}
+            onChange={(e) => onChange({ ...block, title: e.target.value })}
+          />
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                select
+                label="Chart type"
+                fullWidth
+                value={block.chartType}
+                onChange={(e) => onChange({ ...block, chartType: e.target.value as typeof block.chartType })}
+              >
+                <MenuItem value="scatter">Scatter plot</MenuItem>
+                <MenuItem value="line">Line chart</MenuItem>
+                <MenuItem value="bar">Bar chart</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                label="X-axis label"
+                fullWidth
+                value={block.xAxisLabel ?? ''}
+                onChange={(e) => onChange({ ...block, xAxisLabel: e.target.value || undefined })}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                label="Y-axis label"
+                fullWidth
+                value={block.yAxisLabel ?? ''}
+                onChange={(e) => onChange({ ...block, yAxisLabel: e.target.value || undefined })}
+              />
+            </Grid>
+          </Grid>
+          <TextField
+            label="Caption"
+            fullWidth
+            multiline
+            minRows={2}
+            value={block.caption ?? ''}
+            onChange={(e) => onChange({ ...block, caption: e.target.value || undefined })}
+          />
+          <TextField
+            label="Height (px)"
+            type="number"
+            sx={{ maxWidth: 160 }}
+            value={block.height ?? 320}
+            onChange={(e) => onChange({ ...block, height: parseInt(e.target.value, 10) || 320 })}
+          />
+        </Stack>
+      );
+
     case 'divider':
       return (
         <Stack spacing={2}>

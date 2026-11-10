@@ -3147,6 +3147,850 @@ SALIM: Wo missing value hai. Permanently.
 NARRATOR: Agle Sunday: "Kachra Saaf Karo." Missing values aur outliers ka ilaaj. Tab tak, chai peete raho, seekhte raho.`,
 };
 
+/**
+ * Episode 6 — "Ek Seedhi Line ki Kahani: Linear Regression".
+ * Salim teaches Shyam at Chhotu's tea stall outside Gupta Property Dealer:
+ * Linear relationship, independent vs dependent variables, hypothesis function
+ * h_theta(x) = theta_0 + theta_1 * x, slope & intercept interpretation, residuals
+ * and prediction error, simple vs multiple linear regression, geometry (line, plane, hyperplane),
+ * feature weights, and why linear models remain ubiquitous.
+ */
+const episode6ContentBlocks: ContentBlock[] = [
+  {
+    id: 's6-scene-tapri',
+    type: 'scene',
+    order: 0,
+    sceneTitle: 'Gupta Property Dealer Ke Bahar, Chhotu Ki Tapri',
+    location: 'Gupta Property Dealer ke office ke bahar, Chhotu ki ek aur tapri',
+    time: 'Sunday, 6:00 PM',
+    sessionLabel: 'Module 3 · Episode 6',
+    backgroundTheme: 'rooftop-evening',
+    ambientDescription:
+      'Shyam ke Bhaiya ki shaadi tay ho gayi hai aur unke liye flat dhoondhna hai. Teen ghante se dono dost Gupta ji ke saath alag-alag flats dekh rahe hain. Haath mein akhbaar ke property wale panne hain, pair dukh rahe hain, aur table par thaki hui cutting chai.',
+    transitionStyle: 'fade',
+  },
+  {
+    id: 's6-narration-intro',
+    type: 'narration',
+    order: 1,
+    tone: 'scene-setting',
+    bodyMarkdown:
+      'Gupta ji office ke andar AC mein baithe kisi NRI client ko phone par "prime location with spiritual aura" bech rahe the. Baahar tapri par Shyam aur Salim plastic ke stool par baithe the, akhbaar ke panne samne bikhre hue the.',
+  },
+  {
+    id: 's6-dialogue-vibe-vs-maths',
+    type: 'dialogue',
+    order: 2,
+    lines: [
+      { id: 'e6d1', speaker: 'shyam', text: 'Abe teen ghante ho gaye. Gupta ji har flat ka rate alag bol rahe hain.', emphasis: 'none', displayOrder: 0 },
+      { id: 'e6d2', speaker: 'salim', text: 'Kya bola?', emphasis: 'none', displayOrder: 1 },
+      { id: 'e6d3', speaker: 'shyam', text: 'Bole, "Ye wala ₹50 lakh, kyunki vibe achhi hai."', emphasis: 'none', displayOrder: 2 },
+      { id: 'e6d4', speaker: 'salim', text: 'Vibe? Property dealer ab vibe measure karne lage?', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e6d5',
+        speaker: 'shyam',
+        text: 'Aur doosra ₹60 lakh, kyunki saamne mandir hai. Bole, "Bhaiya ji, subah subah ghanti ki aawaaz aayegi, bhagwan ka aashirwaad free mein milega."',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      {
+        id: 'e6d6',
+        speaker: 'salim',
+        text: 'Aur teesre mein pakka bola hoga ki "vastu friendly hawa aati hai toh ₹5 lakh extra"?',
+        emphasis: 'none',
+        displayOrder: 5,
+      },
+      { id: 'e6d7', speaker: 'shyam', text: 'Tujhe kaise pata? Exactly wahi bola!', emphasis: 'none', displayOrder: 6 },
+      {
+        id: 'e6d8',
+        speaker: 'salim',
+        text: 'To beta, aaj class yahin lagegi. Aur teacher kaun hai?',
+        stageDirection: 'chai uthate hue',
+        emphasis: 'none',
+        displayOrder: 7,
+      },
+      { id: 'e6d9', speaker: 'shyam', text: 'Tu.', stageDirection: 'aah bharte hue', emphasis: 'none', displayOrder: 8 },
+      {
+        id: 'e6d10',
+        speaker: 'salim',
+        text: 'Bilkul. Aaj Gupta ji ki vibe ko maths se harayenge.',
+        emphasis: 'bold',
+        displayOrder: 9,
+      },
+    ],
+  },
+  {
+    id: 's6-banter-vibe-tax',
+    type: 'banter',
+    order: 3,
+    speaker: 'shyam',
+    text: 'Gupta ji ki "vibe" actually unka 10% commission hai jo unhone flat ke rate mein silent tax ki tarah jod diya hai.',
+    reactionEmoji: '💸',
+  },
+  {
+    id: 's6-dialogue-linear-intro',
+    type: 'dialogue',
+    order: 4,
+    lines: [
+      {
+        id: 'e6d11',
+        speaker: 'salim',
+        text: 'Pichhle chaar hafte humne data saaf kiya, samjha, pakaya. Missing values bhari, outliers dekhe, scaling ki. Ab pehla asli Machine Learning model: Linear Regression.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      {
+        id: 'e6d12',
+        speaker: 'shyam',
+        text: 'Naam se hi dar lag raha hai. Regression sunte hi lagta hai pichhe ja rahe hain.',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      {
+        id: 'e6d13',
+        speaker: 'salim',
+        text: 'Dar mat. Regression ka matlab bas continuous number predict karna hai — jaise price, salary, ya temperature. Aur Linear bas ek seedhi line hai. Seedha sawaal bata: flat bada ho to keemat?',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      { id: 'e6d14', speaker: 'shyam', text: 'Zyada.', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e6d15',
+        speaker: 'salim',
+        text: 'Aur jitna bada, utni zyada. Lagbhag ek hi raftaar se. Ise kehte hain linear relationship.',
+        conceptRef: 'linear-relationship',
+        emphasis: 'bold',
+        displayOrder: 4,
+      },
+      { id: 'e6d16', speaker: 'shyam', text: 'Aur agar raftaar badalti rahe?', emphasis: 'none', displayOrder: 5 },
+      {
+        id: 'e6d17',
+        speaker: 'salim',
+        text: 'To non-linear. Jaise tera wazan aur Ammi ki biryani. Pehli plate se thoda badhta hai, teesri plate ke baad rocket!',
+        emphasis: 'none',
+        displayOrder: 6,
+      },
+      {
+        id: 'e6d18',
+        speaker: 'shyam',
+        text: 'Mera wazan har session mein beech mein aana zaroori hai kya? Pichhle hafte rasoi mein bhi BMI nikaal raha tha mera.',
+        emphasis: 'none',
+        displayOrder: 7,
+      },
+      {
+        id: 'e6d19',
+        speaker: 'salim',
+        text: 'Tere wazan se best intuition kisi cheez ka nahi milta bhai.',
+        emphasis: 'none',
+        displayOrder: 8,
+      },
+    ],
+  },
+  {
+    id: 's6-concept-linear-relationship',
+    type: 'concept',
+    order: 5,
+    conceptName: 'Linear vs Non-linear Relationship',
+    anchorId: 'linear-relationship',
+    simpleDefinition:
+      'Jab ek variable badhne par doosra variable ek constant raftaar (constant rate) se badhe ya ghate, toh relation linear kehlata hai. Agar raftaar badalti rahe, toh non-linear.',
+    technicalDefinition:
+      'A relationship between two variables is linear if changes in the independent variable produce proportional changes in the dependent variable, forming a straight line graph: dy/dx = constant. In non-linear relationships, the rate of change varies across the input range (curves, polynomials, exponential curves).',
+    realWorldExample:
+      'Linear: Flat ka size double hua toh construction cost lagbhag double ho gayi. Non-linear: Car ki speed vs fuel consumption, ya biryani ki plates vs Shyam ka wazan.',
+    relatedTerms: ['slope', 'rate of change', 'correlation', 'non-linear'],
+    bookmarkable: true,
+  },
+  {
+    id: 's6-table-linear-vs-nonlinear',
+    type: 'table',
+    order: 6,
+    caption: 'Linear vs Non-linear Relationship',
+    columns: ['Pehlu', 'Linear Relationship', 'Non-linear Relationship'],
+    rows: [
+      ['Matlab', 'x badha toh y ek constant raftaar se badha (ya ghata)', 'Raftaar data ke hisaab se badalti rehti hai'],
+      ['Graph', 'Ekdam seedhi line (Straight Line)', 'Curve, U-shape, S-curve ya wavy curve'],
+      ['Mathematical Rate', 'Constant slope (m ya theta_1)', 'Slope badalta rehta hai (derivative depend karta hai x par)'],
+      ['Real-world Example', 'Flat ka size vs keemat (lagbhag)', 'Experience vs Salary (career ke end mein plateau ho jaati hai)'],
+    ],
+    note: 'Real world mein exact straight line rare hoti hai, lekin Linear Regression ek strong approximation deta hai.',
+  },
+  {
+    id: 's6-divider-flats-data',
+    type: 'divider',
+    order: 7,
+    style: 'chai-cup',
+    label: 'Akhbaar Ke 5 Flats Ka Data',
+  },
+  {
+    id: 's6-dialogue-newspaper-data',
+    type: 'dialogue',
+    order: 8,
+    lines: [
+      { id: 'e6d20', speaker: 'salim', text: 'Akhbaar se paanch flats nikaal. Size aur keemat.', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e6d21',
+        speaker: 'shyam',
+        text: 'Ruk pen se mark karta hoon. 600 sq ft: ₹31 lakh. 800 sq ft: ₹37 lakh. 1000 sq ft: ₹47 lakh. 1200 sq ft: ₹53 lakh. 1500 sq ft: ₹67 lakh.',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      {
+        id: 'e6d22',
+        speaker: 'salim',
+        text: 'Ab inhe graph pe sochna shuru kar. Size neeche x-axis par, keemat upar y-axis par.',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      {
+        id: 'e6d23',
+        speaker: 'shyam',
+        text: 'Arre, in paanchon points ko dekhein toh ye lagbhag ek hi seedhi line mein baithte lag rahe hain!',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      {
+        id: 'e6d24',
+        speaker: 'salim',
+        text: 'Yahi data ka jaadu hai. Ab inke beech se ek aisi seedhi line kheench jo sabke sabse kareeb se guzre.',
+        emphasis: 'bold',
+        displayOrder: 4,
+      },
+    ],
+  },
+  {
+    id: 's6-table-flats-dataset',
+    type: 'table',
+    order: 9,
+    caption: 'Akhbaar se nikale gaye 5 flats ka raw dataset',
+    columns: ['Flat', 'Size (sq ft)', 'Keemat (₹ Lakh)'],
+    rows: [
+      ['Flat A', '600', '31'],
+      ['Flat B', '800', '37'],
+      ['Flat C', '1000', '47'],
+      ['Flat D', '1200', '53'],
+      ['Flat E', '1500', '67'],
+    ],
+    note: 'Yeh hamara 5-sample training dataset hai jisse hum model ko fit karenge.',
+  },
+  {
+    id: 's6-chart-raw-scatter',
+    type: 'chart',
+    order: 10,
+    title: 'Raw Data: Flat Size vs Keemat (Scatter Plot)',
+    chartType: 'scatter',
+    xAxisLabel: 'Flat Size (sq ft)',
+    yAxisLabel: 'Keemat (₹ Lakh)',
+    dataPoints: [
+      { label: 'Flat A (600 sq ft, ₹31L)', values: { size: 600, price: 31 } },
+      { label: 'Flat B (800 sq ft, ₹37L)', values: { size: 800, price: 37 } },
+      { label: 'Flat C (1000 sq ft, ₹47L)', values: { size: 1000, price: 47 } },
+      { label: 'Flat D (1200 sq ft, ₹53L)', values: { size: 1200, price: 53 } },
+      { label: 'Flat E (1500 sq ft, ₹67L)', values: { size: 1500, price: 67 } },
+    ],
+    caption: 'Paanchon flats ke data points graph par ek clear upward trajectory dikha rahe hain — size badhne ke saath keemat badh rahi hai.',
+    height: 320,
+  },
+  {
+    id: 's6-dialogue-variables',
+    type: 'dialogue',
+    order: 11,
+    lines: [
+      { id: 'e6d25', speaker: 'salim', text: 'Pehle do mukhy kirdaar samajh. Hum kis cheez se kya predict kar rahe hain?', emphasis: 'none', displayOrder: 0 },
+      { id: 'e6d26', speaker: 'shyam', text: 'Size se keemat nikaal rahe hain.', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e6d27',
+        speaker: 'salim',
+        text: 'Toh Size hua hamara Independent variable (input feature x), aur Keemat hui Dependent variable (target output y).',
+        conceptRef: 'dependent-independent-variables',
+        emphasis: 'bold',
+        displayOrder: 2,
+      },
+      {
+        id: 'e6d28',
+        speaker: 'shyam',
+        text: 'Kyunki keemat size pe depend karti hai, size kisi pe depend nahi karta.',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      { id: 'e6d29', speaker: 'salim', text: 'Correct. Size independent hai, jaise...', emphasis: 'none', displayOrder: 4 },
+      { id: 'e6d30', speaker: 'shyam', text: '...Jaise main!', emphasis: 'none', displayOrder: 5 },
+      {
+        id: 'e6d31',
+        speaker: 'salim',
+        text: 'Tu? Tu toh abhi tak Bhaiya se har mahine jeb kharch leta hai. Kahan se independent?',
+        emphasis: 'none',
+        displayOrder: 6,
+      },
+      {
+        id: 'e6d32',
+        speaker: 'shyam',
+        text: 'Wo jeb kharch nahi hai, wo family investment hai mujh par! Return on investment tab aayega jab main ML engineer banunga.',
+        emphasis: 'none',
+        displayOrder: 7,
+      },
+      { id: 'e6d33', speaker: 'salim', text: 'Us investment ka beta filhaal depreciation ho raha hai.', emphasis: 'none', displayOrder: 8 },
+    ],
+  },
+  {
+    id: 's6-concept-variables',
+    type: 'concept',
+    order: 12,
+    conceptName: 'Independent vs Dependent Variable',
+    anchorId: 'dependent-independent-variables',
+    simpleDefinition:
+      'Independent variable (x) input feature hai jo hum pehle se jaante hain. Dependent variable (y) output target hai jise hume predict karna hai.',
+    technicalDefinition:
+      'The independent variable (feature/regressor/predictor x) is observed to explain or predict changes in the dependent variable (outcome/criterion/target y). In supervised regression, the model learns a functional mapping f: X -> Y.',
+    realWorldExample:
+      'Flat ka size = x (independent). Flat ki market price = y (dependent). Keemat size pe depend karti hai, isliye dependent.',
+    relatedTerms: ['feature', 'target', 'input', 'output', 'regressor', 'response'],
+    bookmarkable: true,
+  },
+  {
+    id: 's6-divider-line-formula',
+    type: 'divider',
+    order: 13,
+    style: 'scene-break',
+    label: 'School Ki Maths vs Machine Learning Ka Formula',
+  },
+  {
+    id: 's6-dialogue-line-formula',
+    type: 'dialogue',
+    order: 14,
+    lines: [
+      { id: 'e6d34', speaker: 'salim', text: 'School mein Class 9-10 mein straight line ka formula yaad hai?', emphasis: 'none', displayOrder: 0 },
+      { id: 'e6d35', speaker: 'shyam', text: 'y barabar mx plus c. y = mx + c. Isme m slope hota tha aur c intercept.', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e6d36',
+        speaker: 'salim',
+        text: 'Shabaash. Ab Machine Learning mein aa. Machine learning walon ne bas iske naam badal diye hain taaki intelligent lagein.',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      { id: 'e6d37', speaker: 'shyam', text: 'Kya likhte hain?', emphasis: 'none', displayOrder: 3 },
+      {
+        id: 'e6d38',
+        speaker: 'salim',
+        text: 'h_theta(x) = theta_0 + theta_1 * x. Bas y ban gaya h_theta(x), c ban gaya theta_0, aur m ban gaya theta_1.',
+        conceptRef: 'hypothesis-function',
+        emphasis: 'bold',
+        displayOrder: 4,
+      },
+      {
+        id: 'e6d39',
+        speaker: 'shyam',
+        text: 'Abe yaar! Theta kyun? m aur c mein kya burai thi? Class 10th ka bachha bhi samajh leta!',
+        emphasis: 'none',
+        displayOrder: 5,
+      },
+      {
+        id: 'e6d40',
+        speaker: 'salim',
+        text: 'ML walon ko Greek letters pasand hain. Paper mein Greek symbols daal do toh lagta hai rocket science chal rahi hai.',
+        emphasis: 'none',
+        displayOrder: 6,
+      },
+    ],
+  },
+  {
+    id: 's6-banter-theta-smart',
+    type: 'banter',
+    order: 15,
+    speaker: 'shyam',
+    text: 'ML industry ka golden rule: Jab formula simple ho, toh variables ke naam Greek mein likh do taaki salary ₹25 lakh maang sako.',
+    reactionEmoji: '🤓',
+  },
+  {
+    id: 's6-formula-hypothesis',
+    type: 'formula',
+    order: 16,
+    title: "Salim's Blackboard: Hypothesis Function",
+    formula: '{h}_{theta}(x) = {theta}_0 + {theta}_1 * x',
+    variables: [
+      { symbol: 'h_theta(x)', meaning: 'Hypothesis function — model ka predicted output (y_hat ya andaza)' },
+      { symbol: 'theta_1', meaning: 'Slope / Weight / Coefficient — x ek unit badhne par y kitna badlega' },
+      { symbol: 'theta_0', meaning: 'Intercept / Bias — base price jab x = 0 ho (y-axis crossing point)' },
+      { symbol: 'x', meaning: 'Input feature (jaise flat ka size)' },
+    ],
+    stepByStepExplanation: [
+      'School wala y = mx + c aur ML wala h_theta(x) = theta_0 + theta_1 * x bilkul same equation hain.',
+      'theta_1 (slope/weight) batata hai line ki dhalan kitni steep hai — yaani rate of change (₹ per sq ft).',
+      'theta_0 (intercept/bias) batata hai line y-axis ko kahan touch karti hai — yaani zero size par base value.',
+      'Linear Regression ka main goal: theta_0 aur theta_1 ki aisi values dhoondhna jisse line data points ke sabse kareeb baithe (best fit).',
+    ],
+    numericalExample: 'Agar theta_0 = 6 aur theta_1 = 0.04 ho: 1000 sq ft flat ke liye h_theta(1000) = 6 + 0.04 * 1000 = 6 + 40 = ₹46 Lakh.',
+    allowCopy: true,
+  },
+  {
+    id: 's6-dialogue-theta-meaning',
+    type: 'dialogue',
+    order: 17,
+    lines: [
+      { id: 'e6d41', speaker: 'shyam', text: 'Achha, toh in paanch flats par best-fit line kya aati hai?', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e6d42',
+        speaker: 'salim',
+        text: 'In paanch flats pe best-fit line aati hai: theta_0 lagbhag 6.03, theta_1 lagbhag 0.0402. Rounding karke: Keemat (lakh) = 6 + 0.04 * Size (sq ft).',
+        emphasis: 'bold',
+        displayOrder: 1,
+      },
+      {
+        id: 'e6d43',
+        speaker: 'shyam',
+        text: 'Is 0.04 aur 6 ka practical matlab kya hua Gupta ji ke terms mein?',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      {
+        id: 'e6d44',
+        speaker: 'salim',
+        text: 'Slope = 0.04 lakh = ₹4,000. Har ek extra sq ft badhne par keemat ₹4,000 badhti hai. Aur intercept = ₹6 lakh. Zameen ki basic cost, location aur Gupta ji ka hidden commission sab yahin chhupa hai!',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      {
+        id: 'e6d45',
+        speaker: 'shyam',
+        text: 'Toh Bhaiya ka 1100 sq ft flat calculate kar!',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      {
+        id: 'e6d46',
+        speaker: 'salim',
+        text: '6 + 0.04 * 1100 = 6 + 44 = ₹50 lakh! Fair market price banti hai ₹50 lakh.',
+        emphasis: 'bold',
+        displayOrder: 5,
+      },
+      {
+        id: 'e6d47',
+        speaker: 'shyam',
+        text: 'Aur Gupta ji ne bola tha ₹60 lakh! Matlab ₹10 lakh seedha seedha "mandir aur vibe" ka premium kaat rahe hain!',
+        emphasis: 'highlight',
+        displayOrder: 6,
+      },
+    ],
+  },
+  {
+    id: 's6-chart-best-fit-line',
+    type: 'chart',
+    order: 18,
+    title: 'Best-Fit Line: Keemat = 6 + 0.04 × Size',
+    chartType: 'scatter',
+    xAxisLabel: 'Flat Size (sq ft)',
+    yAxisLabel: 'Keemat (₹ Lakh)',
+    dataPoints: [
+      { label: 'Flat A (600 sq ft, ₹31L)', values: { size: 600, price: 31 } },
+      { label: 'Flat B (800 sq ft, ₹37L)', values: { size: 800, price: 37 } },
+      { label: 'Flat C (1000 sq ft, ₹47L)', values: { size: 1000, price: 47 } },
+      { label: 'Flat D (1200 sq ft, ₹53L)', values: { size: 1200, price: 53 } },
+      { label: 'Flat E (1500 sq ft, ₹67L)', values: { size: 1500, price: 67 } },
+    ],
+    trendLine: {
+      slope: 0.04,
+      intercept: 6.0,
+      label: 'Best-fit line: y = 6 + 0.04x',
+    },
+    annotations: [
+      { x: 1000, y: 47, label: 'Actual: ₹47L (Model: ₹46L)' },
+      { x: 1100, y: 60, label: 'Gupta ji quote: ₹60L (Model: ₹50L)' },
+    ],
+    caption: 'Red dashed line regression model hai. Gupta ji ka quote (1100 sq ft, ₹60L) line se poore ₹10 lakh upar hawa mein teer maar raha hai.',
+    height: 340,
+  },
+  {
+    id: 's6-divider-residual',
+    type: 'divider',
+    order: 19,
+    style: 'scene-break',
+    label: 'Galti Ka Farak: Residual Kya Hai?',
+  },
+  {
+    id: 's6-dialogue-residual',
+    type: 'dialogue',
+    order: 20,
+    lines: [
+      {
+        id: 'e6d48',
+        speaker: 'shyam',
+        text: 'Ek second ruk. 1000 sq ft wale flat par dhyan de. Akhbaar mein uski actual keemat ₹47 lakh thi. Par hamari best line formula se 6 + 0.04 * 1000 = ₹46 lakh bol rahi hai.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      {
+        id: 'e6d49',
+        speaker: 'salim',
+        text: 'Badhiya pakda. Yahi jo 1 lakh ka farak hai, isko bolte hain Residual ya Prediction Error.',
+        conceptRef: 'residual',
+        emphasis: 'bold',
+        displayOrder: 1,
+      },
+      {
+        id: 'e6d50',
+        speaker: 'shyam',
+        text: 'Matlab line har point se nahi guzarti?',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      {
+        id: 'e6d51',
+        speaker: 'salim',
+        text: 'Asli duniya mein kabhi nahi guzarti! Asli duniya Gupta ji jaisi hai — thodi random, thodi idhar-udhar. Line bas sabke sabse kareeb rehne ki koshish karti hai.',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      {
+        id: 'e6d52',
+        speaker: 'shyam',
+        text: 'Toh residual ka mathematical formula kya hai?',
+        emphasis: 'none',
+        displayOrder: 4,
+      },
+      {
+        id: 'e6d53',
+        speaker: 'salim',
+        text: 'Residual = y_actual - y_predicted. Yahan 47 - 46 = +1 lakh. Residual positive matlab model ne kam aanka (underpredicted). Residual negative matlab model ne zyada aanka (overpredicted).',
+        emphasis: 'bold',
+        displayOrder: 5,
+      },
+    ],
+  },
+  {
+    id: 's6-concept-residual',
+    type: 'concept',
+    order: 21,
+    conceptName: 'Residual (Prediction Error)',
+    anchorId: 'residual',
+    simpleDefinition:
+      'Asli value (y) aur model ki predicted value (y_hat) ke beech ka vertical fasla ya farak residual kehlata hai: Residual = Actual - Predicted.',
+    technicalDefinition:
+      'The residual e_i for the i-th observation is defined as e_i = y_i - y_hat_i. In Ordinary Least Squares (OLS), the best-fit line minimizes the sum of squared residuals (SSR), ensuring the algebraic sum of residuals is exactly zero.',
+    realWorldExample:
+      'Flat C ki actual price = ₹47L. Model prediction = ₹46L. Residual = 47 - 46 = +₹1L (model ne kam aanka). Gupta ji ke quote ka residual = 60 - 50 = +₹10L (vibe markup).',
+    relatedTerms: ['prediction error', 'loss', 'residual sum of squares', 'underprediction', 'overprediction'],
+    bookmarkable: true,
+  },
+  {
+    id: 's6-confusion-residual',
+    type: 'confusion',
+    order: 22,
+    misconception: 'Achhe regression model mein har data point ka residual 0 hona chahiye, warna model bekaar hai.',
+    clarification:
+      'Asli data mein natural noise aur unmeasured factors (interior quality, sun orientation, floor level) hote hain. Agar line har point se guzarne lage, toh wo straight line nahi balki zig-zag curve ban jayegi jise Overfitting kehte hain. Residual ka hona bilkul normal hai; model ka goal residuals ko zero karna nahi, balki overall squared errors ko minimum rakhna hai.',
+    relatedConceptRef: 'residual',
+  },
+  {
+    id: 's6-banter-gupta-residual',
+    type: 'banter',
+    order: 23,
+    speaker: 'salim',
+    text: 'Gupta ji ke quote mein jo ₹10 lakh ka residual hai, use statistics textbooks mein "Gupta Vibe Variance" ghoshit kar dena chahiye.',
+    reactionEmoji: '📊',
+  },
+  {
+    id: 's6-divider-multiple-regression',
+    type: 'divider',
+    order: 24,
+    style: 'scene-break',
+    label: 'Multiple Linear Regression: Ek Se Bhale Anek Features',
+  },
+  {
+    id: 's6-dialogue-multiple-regression',
+    type: 'dialogue',
+    order: 25,
+    lines: [
+      {
+        id: 'e6d54',
+        speaker: 'shyam',
+        text: 'Par Salim, ek baat bata. Flat ki keemat sirf size pe thodi depend karti hai. Bedrooms kitne hain (2 BHK ya 3 BHK), building kitni purani hai, metro station kitna paas hai — ye sab bhi toh matter karega na?',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      {
+        id: 'e6d55',
+        speaker: 'salim',
+        text: 'Bilkul! Exactly yahi farak hai Simple Linear Regression aur Multiple Linear Regression mein.',
+        conceptRef: 'multiple-linear-regression',
+        emphasis: 'bold',
+        displayOrder: 1,
+      },
+      {
+        id: 'e6d56',
+        speaker: 'shyam',
+        text: 'Matlab jab ek feature ho toh Simple Linear Regression, aur jab kai features hon toh Multiple Linear Regression?',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      {
+        id: 'e6d57',
+        speaker: 'salim',
+        text: 'Ekdam sahi. Formula wahi rehta hai, bas har naye feature ka apna weight (theta) judta chala jaata hai.',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+    ],
+  },
+  {
+    id: 's6-formula-multiple-regression',
+    type: 'formula',
+    order: 26,
+    title: "Salim's Blackboard: Multiple Linear Regression",
+    formula: '{h}_{theta}(x) = {theta}_0 + {theta}_1 * x_1 + {theta}_2 * x_2 + {theta}_3 * x_3',
+    variables: [
+      { symbol: 'theta_0', meaning: 'Intercept (Base price jab saare features zero hon)' },
+      { symbol: 'theta_1', meaning: 'Size ka weight (e.g. +₹0.04 Lakh per sq ft)' },
+      { symbol: 'theta_2', meaning: 'Bedrooms ka weight (e.g. +₹2.0 Lakh per bedroom)' },
+      { symbol: 'theta_3', meaning: 'Building ki umar ka weight (e.g. -₹0.5 Lakh per saal)' },
+    ],
+    stepByStepExplanation: [
+      'Har feature x_i ka ek individual weight theta_i hota hai jo batata hai ki us feature ke 1 unit badhne par target par kya asar padega.',
+      'Agar theta_i positive hai, toh feature target ko badhata hai (jaise flat size ya bedrooms).',
+      'Agar theta_i negative hai, toh feature target ko ghatata hai (jaise building ki age ya metro station se doori).',
+      'Multiple features hone par model sabhi factors ke combined linear effect ko jod kar ek accurate prediction deta hai.',
+    ],
+    numericalExample: 'Keemat = 5 + 0.04*(Size) + 2*(Bedrooms) - 0.5*(Umar). 1000 sq ft, 2 BHK, 10 saal purani building: 5 + 40 + 4 - 5 = ₹44 Lakh.',
+    allowCopy: true,
+  },
+  {
+    id: 's6-dialogue-negative-weight',
+    type: 'dialogue',
+    order: 27,
+    lines: [
+      { id: 'e6d58', speaker: 'shyam', text: 'Shyam ka observation: Umar wala theta negative hai. Kyun?', emphasis: 'none', displayOrder: 0 },
+      {
+        id: 'e6d59',
+        speaker: 'salim',
+        text: 'Kyunki purani building sasti hoti hai! 10 saal purani building hone ki wajah se -0.5 * 10 = ₹5 lakh minus ho gaye depreciation ke chalte.',
+        emphasis: 'none',
+        displayOrder: 1,
+      },
+      {
+        id: 'e6d60',
+        speaker: 'shyam',
+        text: 'Samajh gaya. Weight ka sign (+ ya -) batata hai ki feature keemat badhata hai ya ghatata hai, aur weight ka number batata hai ki kitna tagda asar hai.',
+        emphasis: 'bold',
+        displayOrder: 2,
+      },
+      {
+        id: 'e6d61',
+        speaker: 'salim',
+        text: 'Aur feature scaling yaad hai pichhle Sunday ki? Agar features alag scale par hon (sq ft hazaron mein, BHK single digit mein), toh weights confuse na hon isliye scaling zaroori thi!',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      { id: 'e6d62', speaker: 'shyam', text: 'Baap re, ab pichhle hafte ka rajma aur scaling sab connect ho raha hai!', emphasis: 'none', displayOrder: 4 },
+    ],
+  },
+  {
+    id: 's6-chart-feature-impact',
+    type: 'chart',
+    order: 28,
+    title: 'Feature Weights: Kaun Keemat Badhata Hai Aur Kaun Ghatata Hai?',
+    chartType: 'bar',
+    xAxisLabel: 'Feature',
+    yAxisLabel: 'Weight / Impact (₹ Lakh)',
+    dataPoints: [
+      { label: 'Size (per 100 sqft)', values: { weight: 4.0 } },
+      { label: 'Bedrooms (per BHK)', values: { weight: 2.0 } },
+      { label: 'Metro Proximity (per km paas)', values: { weight: 1.5 } },
+      { label: 'Building Age (per 2 yrs)', values: { weight: -1.0 } },
+    ],
+    caption: 'Positive weights keemat badhate hain; negative weights (jaise building age) depreciation ki wajah se keemat ghatate hain.',
+    height: 300,
+  },
+  {
+    id: 's6-table-geometry',
+    type: 'table',
+    order: 29,
+    caption: 'Features vs Geometry: Dimension Kaisi Dikhti Hai?',
+    columns: ['Features Ki Sankhya', 'Maths Ki Dimension', 'Geometrical Shape', 'Visual Real Life'],
+    rows: [
+      ['1 Feature (Size)', '2D (x aur y)', 'Straight Line', 'Notebook par kheenchi hui seedhi line'],
+      ['2 Features (Size + BHK)', '3D (x1, x2 aur y)', 'Flat Plane', 'Table ka flat top jo kisi angle par jhuka ho'],
+      ['3 ya zyada Features', '4D ya n-D space', 'Hyperplane', 'Dikhayi nahi deta, sirf linear algebra mein rehta hai'],
+    ],
+    note: 'Hyperplane sunne mein sci-fi lagta hai, par mathematically yeh bas higher dimensions mein flat plane hota hai.',
+  },
+  {
+    id: 's6-dialogue-hyperplane-banter',
+    type: 'dialogue',
+    order: 30,
+    lines: [
+      {
+        id: 'e6d63',
+        speaker: 'salim',
+        text: 'Hyperplane koi insaan apni aakhon se 3D duniya mein dekh nahi sakta. Bas maths aur vector algebra mein rehta hai.',
+        emphasis: 'none',
+        displayOrder: 0,
+      },
+      { id: 'e6d64', speaker: 'shyam', text: 'Jaise mere udhaar ke ₹500.', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e6d65',
+        speaker: 'salim',
+        text: 'Tere ₹500 yahan kahan se aa gaye?!',
+        stageDirection: 'chai ka cup table pe patakte hue',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      { id: 'e6d66', speaker: 'shyam', text: 'Wo bhi dikhayi nahi dete, bas hisaab mein rehte hain. Hyperplane currency hai meri!', emphasis: 'none', displayOrder: 3 },
+      { id: 'e6d67', speaker: 'salim', text: 'Tu har topic mein apne ₹500 ghusane ka award jeetega ek din.', emphasis: 'none', displayOrder: 4 },
+    ],
+  },
+  {
+    id: 's6-concept-why-popular',
+    type: 'concept',
+    order: 31,
+    conceptName: 'Linear Regression Itna Famous Kyun Hai?',
+    anchorId: 'why-linear-regression-popular',
+    simpleDefinition:
+      'Yeh samajhne mein aasaan hai, har feature ka asar saaf dikhata hai (interpretable), aur bina kisi heavy server ke mobile ya browser mein microsecond mein chal jaata hai.',
+    technicalDefinition:
+      'Linear regression remains a foundational industry tool because of: (1) Interpretability (coefficients directly indicate marginal effects); (2) Computational speed and scalability across billions of rows; (3) Trivial deployment (simple dot product in SQL/C++); and (4) It serves as the baseline benchmark against which complex models are evaluated.',
+    realWorldExample:
+      'Bank loan underwriting aur credit scoring mein regulators ko explain karna padta hai ki model ne decision kyun liya — wahan black-box models ki jagah linear models sabse pehle use hote hain.',
+    relatedTerms: ['interpretability', 'scalability', 'baseline model', 'explainability'],
+    bookmarkable: true,
+  },
+  {
+    id: 's6-table-industry-applications',
+    type: 'table',
+    order: 32,
+    caption: 'Real-world mein Linear Regression kahan kahan use hota hai?',
+    columns: ['Problem', 'Features (x)', 'Target (y)'],
+    rows: [
+      ['House Price Prediction', 'Size, BHK, Age, Metro proximity', 'Flat ki keemat (₹ Lakh)'],
+      ['Employee Salary Banding', 'Experience, Education, Skills, City', 'Annual CTC (₹ Lakh)'],
+      ['Bike / Cab Rental Demand', 'Date, Weather, Weekend flag, Humidity', 'Hourly rental rides count'],
+      ['Retail Business Forecasting', 'Pichhli sales, Festive discount, Season', 'Agle mahine ka total revenue'],
+    ],
+    note: 'Output ek continuous number ho toh Regression. Output ek category ho (haan/na, spam/not spam) toh Classification.',
+  },
+  {
+    id: 's6-confusion-regression-vs-classification',
+    type: 'confusion',
+    order: 33,
+    misconception: '"Kal baarish hogi ya nahi" predict karna Linear Regression ka kaam hai.',
+    clarification:
+      '"Kal baarish hogi ya nahi" ka answer Category hai (Yes ya No) — yeh Classification problem hai. Lekin agar predict karna ho ki "Kal kitne millimeter (mm) baarish hogi" — yeh Continuous Number hai, aur yeh Regression problem hai. Regression = Quantity/Number predict karna. Classification = Category/Class predict karna.',
+    relatedConceptRef: 'linear-relationship',
+  },
+  {
+    id: 's6-summary-recap',
+    type: 'summary',
+    order: 34,
+    title: 'Aaj Salim Ne Shyam Ko Kya Sikhaya?',
+    points: [
+      'Linear relationship: x badhe toh y ek constant proportional raftaar se badhe ya ghate.',
+      'x = independent variable (feature/input). y = dependent variable (target/output).',
+      'Hypothesis function: h_theta(x) = theta_0 + theta_1 * x. theta_1 slope (weight) hai, theta_0 intercept (bias).',
+      'Residual = y_actual - y_predicted. Line har point se nahi guzarti, bas sabke sabse kareeb rehti hai.',
+      'Simple Linear Regression = 1 feature. Multiple Linear Regression = kai features, har ek ka apna weight.',
+      'Feature weights ka sign (+ ya -) batata hai ki feature target badhata hai ya ghatata hai (jaise building age sasti karti hai).',
+      'Geometry: 1 feature = line (2D), 2 features = plane (3D), 3+ features = hyperplane (n-D).',
+      'Linear Regression easy, interpretable, scalable aur deploy karne mein super-fast hai, isliye industry ka favourite baseline model hai.',
+    ],
+  },
+  {
+    id: 's6-quiz-episode-6',
+    type: 'quiz',
+    order: 35,
+    title: 'Chai Break Quiz ☕',
+    questions: [
+      {
+        id: 's6q1',
+        questionType: 'multiple-choice',
+        prompt: 'Model hai: Salary (lakh) = 3 + 1.5 * Experience (saal). 4 saal experience wale candidate ki predicted salary kya hogi?',
+        options: [
+          { id: 'a', text: '₹6.0 Lakh' },
+          { id: 'b', text: '₹7.5 Lakh' },
+          { id: 'c', text: '₹9.0 Lakh' },
+          { id: 'd', text: '₹10.5 Lakh' },
+        ],
+        correctOptionId: 'c',
+        explanation: '3 + 1.5 * 4 = 3 + 6 = ₹9.0 Lakh.',
+      },
+      {
+        id: 's6q2',
+        questionType: 'short-answer',
+        prompt: 'Usi model mein 1.5 ka kya matlab hai (slope ya intercept)?',
+        acceptableAnswers: ['slope', 'slope hai', 'weight'],
+        explanation: '1.5 slope (weight) hai. Iska matlab har ek saal experience badhne pe salary ₹1.5 lakh badhti hai.',
+      },
+      {
+        id: 's6q3',
+        questionType: 'short-answer',
+        prompt: 'Ek ghar ki asli keemat ₹62 lakh hai, model ne ₹58 lakh predict kiya. Residual kitna hai (in lakh)?',
+        acceptableAnswers: ['4', '+4', '4 lakh', '+4 lakh'],
+        explanation: 'Residual = actual - predicted = 62 - 58 = +₹4 lakh. Model ne keemat kam aanki (underpredicted).',
+      },
+      {
+        id: 's6q4',
+        questionType: 'true-false',
+        prompt: '"Customer loan chukayega ya default karega (Yes/No)" predict karna Regression problem hai.',
+        correctAnswer: false,
+        explanation: 'Galat — Yeh Classification problem hai kyunki output categories (Yes/No) hain, continuous number nahi.',
+      },
+    ],
+  },
+  {
+    id: 's6-homework-episode-6',
+    type: 'homework',
+    order: 36,
+    dueLabel: 'Next Sunday sham tak — comments mein likho',
+    difficulty: 'medium',
+    tasks: [
+      'Apni rozmarra zindagi ki koi ek cheez socho jo kisi doosri cheez ke saath lagbhag linear badhti ya ghat-ti hai (jaise: "Jitne ghante gym mein, utni zyada protein shake ki bills").',
+      'Comments mein apna independent variable (x) aur dependent variable (y) likho, aur batao slope positive hai ya negative.',
+      'Gupta ji ke flat model (Keemat = 6 + 0.04*Size) mein socho: agar Gupta ji apna commission badha dein, toh slope badlega ya intercept?',
+    ],
+  },
+  {
+    id: 's6-dialogue-teaser',
+    type: 'dialogue',
+    order: 37,
+    lines: [
+      { id: 'e6d68', speaker: 'shyam', text: 'Ab main sawaal poochhun teacher sahab?', emphasis: 'none', displayOrder: 0 },
+      { id: 'e6d69', speaker: 'salim', text: 'Poochh.', emphasis: 'none', displayOrder: 1 },
+      {
+        id: 'e6d70',
+        speaker: 'shyam',
+        text: 'Tune bola "sabse achhi line dhoondhna". Par achhi kis hisaab se? Main bhi toh scale leke koi aur line kheench sakta hoon. Model ko kaise pata chalta hai ki yahi line sabse best hai?',
+        emphasis: 'none',
+        displayOrder: 2,
+      },
+      {
+        id: 'e6d71',
+        speaker: 'salim',
+        text: '...Ye toh agle hafte teri class ka sawaal hai.',
+        stageDirection: 'chai ka aakhri ghoonth peete hue rukkar',
+        emphasis: 'none',
+        displayOrder: 3,
+      },
+      {
+        id: 'e6d72',
+        speaker: 'shyam',
+        text: 'Haan! Agle Sunday main bataunga ki line ki galti kaise naapte hain, aur sabse achhi line tak pahaad se utar ke kaise pahunchte hain.',
+        emphasis: 'bold',
+        displayOrder: 4,
+      },
+      { id: 'e6d73', speaker: 'salim', text: 'Pahaad se?', emphasis: 'none', displayOrder: 5 },
+      { id: 'e6d74', speaker: 'shyam', text: 'Haan. Aankh par patti baandh ke!', emphasis: 'none', displayOrder: 6 },
+      { id: 'e6d75', speaker: 'salim', text: 'Aur Gupta ji?', emphasis: 'none', displayOrder: 7 },
+      { id: 'e6d76', speaker: 'shyam', text: 'Unhe bhi tapri par bulayenge. Unki vibe ka residual nikalenge!', emphasis: 'none', displayOrder: 8 },
+    ],
+  },
+  {
+    id: 's6-teaser-next-episode',
+    type: 'teaser',
+    order: 38,
+    nextEpisodeTitle: 'Galti Ka Hisaab: Cost Function Aur Gradient Descent',
+    nextEpisodeSlug: toSlug('Galti Ka Hisaab Cost Function Aur Gradient Descent'),
+    teaserText:
+      'Agle Sunday: Shyam batayega ki line ki galti (MSE) kaise naapte hain, aur andhere pahaad se utar kar best line tak Gradient Descent se kaise pahunchte hain.',
+  },
+];
+
 async function seed(): Promise<void> {
   const parsed = contentBlocksSchema.safeParse(contentBlocks);
   if (!parsed.success) {
@@ -3190,6 +4034,13 @@ async function seed(): Promise<void> {
     process.exit(1);
   }
 
+  const parsedEpisode6 = contentBlocksSchema.safeParse(episode6ContentBlocks);
+  if (!parsedEpisode6.success) {
+    console.error('Episode 6 seed content blocks failed validation:');
+    console.error(parsedEpisode6.error.format());
+    process.exit(1);
+  }
+
   await ensureAllIndexes();
   const db = await getDb();
 
@@ -3206,8 +4057,9 @@ async function seed(): Promise<void> {
         shortDescription: 'Do dost, ek chai, aur Machine Learning — module by module.',
         status: 'published',
         displayOrder: 0,
+        totalModules: 2,
       },
-      $setOnInsert: { createdAt: now, totalModules: 1 },
+      $setOnInsert: { createdAt: now },
       $currentDate: { updatedAt: true },
     },
     { upsert: true, returnDocument: 'after' },
@@ -3472,14 +4324,80 @@ async function seed(): Promise<void> {
     { upsert: true, returnDocument: 'after' },
   );
 
+  const module3Slug = toSlug('Module 3 Linear Models');
+  const module3Result = await db.collection<Omit<ModuleDocument, '_id'>>(COLLECTIONS.MODULES).findOneAndUpdate(
+    { seriesId, slug: module3Slug },
+    {
+      $set: {
+        title: 'Module 3: Linear Models',
+        description: 'Linear Regression, cost functions, gradient descent, aur foundational predictive modeling.',
+        moduleNumber: 3,
+        displayOrder: 2,
+        status: 'published',
+      },
+      $setOnInsert: { createdAt: now },
+      $currentDate: { updatedAt: true },
+    },
+    { upsert: true, returnDocument: 'after' },
+  );
+  const module3Doc = module3Result!;
+  const module3Id = module3Doc._id.toHexString();
+
+  const episode6Slug = toSlug('Ek Seedhi Line Ki Kahani Linear Regression');
+  const readingTime6 = calculateReadingTime(parsedEpisode6.data);
+
+  await db.collection<Omit<EpisodeDocument, '_id'>>(COLLECTIONS.EPISODES).findOneAndUpdate(
+    { slug: episode6Slug },
+    {
+      $set: {
+        seriesId,
+        moduleId: module3Id,
+        seriesSlug,
+        seriesTitle: series.title,
+        moduleSlug: module3Slug,
+        moduleTitle: module3Doc.title,
+        title: 'Ek Seedhi Line ki Kahani: Linear Regression',
+        subtitle: 'Sunday Session #06: Gupta ji ki vibe vs Maths — Linear relationship, hypothesis function, residuals aur multiple regression',
+        episodeNumber: 6,
+        teacherCharacter: 'salim',
+        studentCharacter: 'shyam',
+        excerpt:
+          'Gupta Property Dealer ke office ke bahar tapri par, Shyam aur Salim cutting chai ke saath flat ke rate ka hisaab lagate hain — aur Gupta ji ki "vibe" ko Linear Regression ke maths se harate hain.',
+        location: 'Gupta Property Dealer ke office ke bahar, Chhotu ki ek aur tapri',
+        // 6:00 PM IST on Sunday 2026-03-15.
+        sessionDate: new Date('2026-03-15T12:30:00.000Z'),
+        readingTime: readingTime6,
+        contentBlocks: parsedEpisode6.data,
+        tags: ['machine-learning', 'linear-regression', 'supervised-learning', 'regression', 'maths'],
+        concepts: ['linear-relationship', 'dependent-independent-variables', 'residual', 'why-linear-regression-popular'],
+        status: 'published',
+        publishedAt: new Date('2026-03-15T12:30:00.000Z'),
+        featured: true,
+        seo: {
+          metaTitle: 'Ek Seedhi Line ki Kahani: Linear Regression',
+          metaDescription:
+            'Salim aur Shyam samjhate hain Linear Regression — linear relationship, hypothesis function, slope and intercept, residuals aur multiple regression.',
+          noIndex: false,
+        },
+        createdBy: SEED_ACTOR,
+        updatedBy: SEED_ACTOR,
+      },
+      $setOnInsert: { createdAt: now, revision: 1 },
+      $currentDate: { updatedAt: true },
+    },
+    { upsert: true, returnDocument: 'after' },
+  );
+
   console.warn('Seed complete:');
   console.warn(`  series:    /series/${seriesSlug}`);
-  console.warn(`  module:    /series/${seriesSlug}/module/${moduleSlug}`);
+  console.warn(`  module 2:  /series/${seriesSlug}/module/${moduleSlug}`);
+  console.warn(`  module 3:  /series/${seriesSlug}/module/${module3Slug}`);
   console.warn(`  episode 1: /episodes/${episodeSlug}`);
   console.warn(`  episode 2: /episodes/${episode2Slug}`);
   console.warn(`  episode 3: /episodes/${episode3Slug} (audio not attached yet)`);
   console.warn(`  episode 4: /episodes/${episode4Slug}`);
   console.warn(`  episode 5: /episodes/${episode5Slug}`);
+  console.warn(`  episode 6: /episodes/${episode6Slug}`);
 }
 
 seed()

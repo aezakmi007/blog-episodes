@@ -38,6 +38,8 @@ function wordCountForBlock(block: ContentBlock): number {
       return block.rows.flat().reduce((sum, cell) => sum + count(cell), 0);
     case 'image':
       return count(block.caption);
+    case 'chart':
+      return count(block.title) + count(block.caption);
     case 'banter':
       return count(block.text);
     case 'confusion':

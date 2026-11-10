@@ -66,6 +66,29 @@ describe('content block validation', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts a valid chart block', () => {
+    const result = parseContentBlock({
+      id: 'chart-1',
+      type: 'chart',
+      order: 2,
+      title: 'Flat Size vs Price',
+      chartType: 'scatter',
+      xAxisLabel: 'Size (sq ft)',
+      yAxisLabel: 'Price (lakhs)',
+      dataPoints: [
+        { label: 'Flat 1', values: { size: 600, price: 31 } },
+        { label: 'Flat 2', values: { size: 800, price: 37 } },
+      ],
+      trendLine: {
+        slope: 0.04,
+        intercept: 6.0,
+        label: 'Best fit line',
+      },
+      height: 320,
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('rejects an array with duplicate block ids', () => {
     const result = parseContentBlocks([validScene, { ...validScene, order: 1 }]);
     expect(result.success).toBe(false);
